@@ -118,7 +118,4 @@ const Notification = () => {
   return <Toaster />;
 };
 
-  return <Toaster />;
-};
-
 export default Notification;
