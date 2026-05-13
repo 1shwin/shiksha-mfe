@@ -3,13 +3,19 @@ import { getMessaging, onMessage, getToken } from 'firebase/messaging';
 // import config from './config.json';
 import firebaseConfig from './firebaseConfig';
 
-const firebaseApp = initializeApp(firebaseConfig);
+let firebaseApp;
+if (firebaseConfig.projectId) {
+  try {
+    firebaseApp = initializeApp(firebaseConfig);
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+  }
+}
 let messaging;
-console.log("messaging",messaging)
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  messaging = getMessaging();
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator && firebaseApp) {
+  messaging = getMessaging(firebaseApp);
 } else {
-  console.warn('Service workers are not supported in this environment.');
+  console.warn('Service workers are not supported or Firebase is not initialized.');
 }
 
 export const requestPermission = async () => {
@@ -31,7 +37,7 @@ export const requestPermission = async () => {
 export const onMessageListener = () =>
   new Promise((resolve) => {
     if (messaging) {
-      console.log("hoiiiii")
+
       onMessage(messaging, (payload) => {
         resolve(payload);
       });
