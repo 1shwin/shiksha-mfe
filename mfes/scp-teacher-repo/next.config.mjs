@@ -115,7 +115,7 @@ const nextConfig = {
     );
     config.resolve.alias = {
       ...config.resolve.alias,
-      'date-fns': dateFnsRoot,
+      'date-fns': path.resolve(process.cwd(), '../../node_modules/date-fns'),
     };
     return config;
   },
