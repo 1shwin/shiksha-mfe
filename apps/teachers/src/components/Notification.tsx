@@ -6,10 +6,18 @@ import { Box } from '@mui/material';
 import { initializeApp } from 'firebase/app';
 
 import CloseIcon from '@mui/icons-material/Close';
-import { onMessageListener } from 'apps/teachers/firebase';
+import { onMessageListener } from '../../firebase';
+// @ts-ignore
 import { getMessaging, onMessage } from 'firebase/messaging';
-import firebaseConfig from 'apps/teachers/firebaseConfig';
-const firebaseApp = initializeApp(firebaseConfig);
+import firebaseConfig from '../../firebaseConfig';
+let firebaseApp: any;
+if (firebaseConfig.projectId) {
+  try {
+    firebaseApp = initializeApp(firebaseConfig);
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+  }
+}
 
 type NotificationData = {
   title: string;
@@ -26,7 +34,7 @@ const Notification = () => {
   });
 
   const router = useRouter();
-console.log("notification teacher app")
+
   const notify = () =>
     toast(<ToastDisplay />, {
       duration: 4000,
@@ -98,10 +106,10 @@ console.log("notification teacher app")
   }, [notification]);
 
    useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
+    if (typeof window !== 'undefined' && 'Notification' in window && firebaseApp) {
       const messaging = getMessaging(firebaseApp); // ✅ Initialize here
 
-      const unsubscribe = onMessage(messaging, (payload) => {
+      const unsubscribe = onMessage(messaging, (payload: any) => {
         console.log('Foreground message received:', payload);
         if (payload.notification?.title) {
           setNotification({
@@ -117,7 +125,7 @@ console.log("notification teacher app")
     }
   }, []);
   onMessageListener()
-    .then((payload) => {
+    .then((payload: any) => {
       if (payload.notification?.title) {
         setNotification({
           title: payload.notification.title,
