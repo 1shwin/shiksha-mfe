@@ -6,18 +6,10 @@ import { Box } from '@mui/material';
 import { initializeApp } from 'firebase/app';
 
 import CloseIcon from '@mui/icons-material/Close';
-import { onMessageListener } from '../../firebase';
+import { onMessageListener, firebaseApp, messaging } from '../../firebase';
 // @ts-ignore
 import { getMessaging, onMessage } from 'firebase/messaging';
 import firebaseConfig from '../../firebaseConfig';
-let firebaseApp: any;
-if (firebaseConfig.projectId) {
-  try {
-    firebaseApp = initializeApp(firebaseConfig);
-  } catch (error) {
-    console.error('Firebase initialization failed:', error);
-  }
-}
 
 type NotificationData = {
   title: string;
@@ -57,45 +49,45 @@ const Notification = () => {
   function ToastDisplay() {
     return (
       <Box
-      className="notification-container"
-      sx={{ display: 'flex', gap: '8px' }}
-      onClick={handleNotificationClick}
-    >
-      {notification.icon && (
-        <img
-          className="notification-icon"
-          src={notification.icon}
-          alt="Notification"
-        />
-      )}
+        className="notification-container"
+        sx={{ display: 'flex', gap: '8px' }}
+        onClick={handleNotificationClick}
+      >
+        {notification.icon && (
+          <img
+            className="notification-icon"
+            src={notification.icon}
+            alt="Notification"
+          />
+        )}
 
-      <Box>
-        <Box sx={{ fontSize: '16px', fontWeight: '500', color: '#019722' }}>
-          {notification.title}
+        <Box>
+          <Box sx={{ fontSize: '16px', fontWeight: '500', color: '#019722' }}>
+            {notification.title}
+          </Box>
+          <Box
+            sx={{
+              fontSize: '14px',
+              fontWeight: '400',
+              color: '#1F1B13',
+              marginTop: '8px',
+            }}
+          >
+            {notification.body}
+          </Box>
         </Box>
         <Box
-          sx={{
-            fontSize: '14px',
-            fontWeight: '400',
-            color: '#1F1B13',
-            marginTop: '8px',
+          className="close-icon"
+          onClick={(e) => {
+            e.stopPropagation();
+            closeNotification();
           }}
         >
-          {notification.body}
+          <CloseIcon
+            sx={{ color: '#1C1B1F', fontSize: '16px', cursor: 'pointer' }}
+          />
         </Box>
       </Box>
-      <Box
-        className="close-icon"
-        onClick={(e) => {
-          e.stopPropagation();
-          closeNotification();
-        }}
-      >
-        <CloseIcon
-          sx={{ color: '#1C1B1F', fontSize: '16px', cursor: 'pointer' }}
-        />
-      </Box>
-    </Box>
     );
   }
 
@@ -105,10 +97,8 @@ const Notification = () => {
     }
   }, [notification]);
 
-   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window && firebaseApp) {
-      const messaging = getMessaging(firebaseApp); // ✅ Initialize here
-
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window && messaging) {
       const unsubscribe = onMessage(messaging, (payload: any) => {
         console.log('Foreground message received:', payload);
         if (payload.notification?.title) {
@@ -124,18 +114,9 @@ const Notification = () => {
       return () => unsubscribe();
     }
   }, []);
-  onMessageListener()
-    .then((payload: any) => {
-      if (payload.notification?.title) {
-        setNotification({
-          title: payload.notification.title,
-          body: payload.notification.body,
-          icon: payload.notification.icon,
-          navigate_to: payload.notification.navigate_to,
-        });
-      }
-    })
-    .catch((err) => console.log('failed: ', err));
+
+  return <Toaster />;
+};
 
   return <Toaster />;
 };

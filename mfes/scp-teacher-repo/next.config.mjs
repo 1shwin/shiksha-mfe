@@ -37,7 +37,7 @@ const nextConfig = {
 
 
   //cross import support
-  transpilePackages: ['@shared-lib-v2/*', 'date-fns'],
+  transpilePackages: ['@shared-lib-v2', 'date-fns'],
 
   trailingSlash: false,
   reactStrictMode: true,
@@ -115,7 +115,7 @@ const nextConfig = {
     );
     config.resolve.alias = {
       ...config.resolve.alias,
-      'date-fns': path.resolve(process.cwd(), '../../node_modules/date-fns'),
+      'date-fns': dateFnsRoot,
     };
     return config;
   },
