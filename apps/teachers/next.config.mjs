@@ -28,7 +28,7 @@ const nextConfig = {
   },
 
   //cross import support
-  transpilePackages: ['@shared-lib-v2/*', 'firebase', 'date-fns'],
+  transpilePackages: ['@shared-lib-v2', 'firebase', 'date-fns'],
 
   // @ts-ignore
   i18n: nextI18nextConfig.i18n,
