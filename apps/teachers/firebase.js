@@ -3,26 +3,29 @@ import { getMessaging, onMessage, getToken } from 'firebase/messaging';
 // import config from './config.json';
 import firebaseConfig from './firebaseConfig';
 
-export let firebaseApp;
-if (firebaseConfig.projectId) {
-  try {
-    firebaseApp = initializeApp(firebaseConfig);
-  } catch (error) {
-    console.error('Firebase initialization failed:', error);
+export const firebaseApp = (() => {
+  if (firebaseConfig.projectId) {
+    try {
+      return initializeApp(firebaseConfig);
+    } catch (error) {
+      console.error('Firebase initialization failed:', error);
+    }
   }
-}
+  return undefined;
+})();
 
-export let messaging;
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator && firebaseApp) {
-  messaging = getMessaging(firebaseApp);
-} else {
+export const messaging = (() => {
+  if (typeof globalThis.window !== 'undefined' && 'serviceWorker' in globalThis.navigator && firebaseApp) {
+    return getMessaging(firebaseApp);
+  }
   console.warn('Service workers are not supported or Firebase is not initialized.');
-}
+  return undefined;
+})();
 
 export const requestPermission = async () => {
-  if (typeof window === 'undefined') return;
+  if (typeof globalThis.window === 'undefined') return;
 
-  const permission = await Notification.requestPermission();
+  const permission = await globalThis.window.Notification.requestPermission();
   try {
     if (permission === 'granted' && messaging) {
       const token = await getToken(messaging, {

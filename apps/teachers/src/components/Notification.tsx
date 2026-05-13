@@ -3,13 +3,9 @@ import toast, { Toaster } from 'react-hot-toast';
 // import { onMessageListener } from './../../firebase';
 import { useRouter } from 'next/router';
 import { Box } from '@mui/material';
-import { initializeApp } from 'firebase/app';
-
 import CloseIcon from '@mui/icons-material/Close';
-import { onMessageListener, firebaseApp, messaging } from '../../firebase';
-// @ts-ignore
-import { getMessaging, onMessage } from 'firebase/messaging';
-import firebaseConfig from '../../firebaseConfig';
+import { messaging } from '../../firebase';
+import { onMessage } from 'firebase/messaging';
 
 type NotificationData = {
   title: string;
@@ -98,7 +94,7 @@ const Notification = () => {
   }, [notification]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window && messaging) {
+    if (typeof globalThis.window !== 'undefined' && 'Notification' in globalThis.window && messaging) {
       const unsubscribe = onMessage(messaging, (payload: any) => {
         console.log('Foreground message received:', payload);
         if (payload.notification?.title) {
