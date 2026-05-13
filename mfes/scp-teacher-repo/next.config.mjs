@@ -1,7 +1,7 @@
 import nextI18nextConfig from './next-i18next.config.js';
 import withPWAInit from '@ducanh2912/next-pwa';
 import { NextFederationPlugin } from '@module-federation/nextjs-mf';
-import path from 'path';
+import path from 'node:path';
 const url = process.env.NEXT_PUBLIC_WORKSPACE_BASE_URL;
 // const url = 'http://localhost:3000';
 
