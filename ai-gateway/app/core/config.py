@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     artifact_root: Path = Path('/tmp/shiksha-ai-artifacts')
     temp_root: Path = Path('/tmp/shiksha-ai')
     whisper_model: str = 'large-v3'
+    mock_mode: bool = False
 
 settings = Settings()
 settings.artifact_root.mkdir(parents=True, exist_ok=True)

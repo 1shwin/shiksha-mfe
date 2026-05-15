@@ -21,7 +21,41 @@ class LlmClient:
                 pass
         raise ValueError(f'Could not parse LLM output as JSON: {raw[:200]}')
 
+    def _get_mock_response(self, prompt: str) -> dict:
+        """Return static mock data based on the prompt content."""
+        prompt_lower = prompt.lower()
+        if "takeaways" in prompt_lower or "glossary" in prompt_lower:
+            return {
+                "takeaways": [
+                    {"title": "Key Concept", "summary": "This is a mock takeaway generated in mock mode.", "pageRef": "1", "confidence": 0.95}
+                ],
+                "glossary": [
+                    {"term": "Mock Term", "definition": "A term used for testing without an LLM.", "context": "Testing environment"}
+                ],
+                "narration_script": "This is a mock narration script."
+            }
+        if "assessment" in prompt_lower or "questions" in prompt_lower:
+            return {
+                "questions": [
+                    {
+                        "question": "What is the capital of France?",
+                        "answers": [
+                            {"text": "Paris", "correct": True, "feedback": "Correct!"},
+                            {"text": "London", "correct": False, "feedback": "Incorrect."}
+                        ],
+                        "explanation": "Paris is the capital of France.",
+                        "difficulty": "easy",
+                        "bloomsLevel": "remember",
+                        "evidence": {"quote": "This is a mock quote that must be in the source text to pass validation.", "pageRef": "1"}
+                    }
+                ]
+            }
+        return {"message": "Generic mock response", "status": "ok"}
+
     async def generate_json(self, prompt: str, retries: int = 2) -> dict:
+        if settings.mock_mode:
+            return self._get_mock_response(prompt)
+            
         last_error = None
         for attempt in range(retries + 1):
             try:
