@@ -47,6 +47,10 @@ export interface MCQQuestion {
   explanation: string;
   difficulty: Difficulty;
   bloomsLevel: BloomsLevel;
+  evidence?: {
+    quote: string;
+    pageRef?: string;
+  };
 }
 
 export interface FITBBlank {
@@ -62,6 +66,10 @@ export interface FITBQuestion {
   latex: string | null;
   difficulty: Difficulty;
   bloomsLevel: BloomsLevel;
+  evidence?: {
+    quote: string;
+    pageRef?: string;
+  };
 }
 
 export interface MatchPair {
@@ -77,6 +85,10 @@ export interface MatchQuestion {
   latex: string | null;
   difficulty: Difficulty;
   bloomsLevel: BloomsLevel;
+  evidence?: {
+    quote: string;
+    pageRef?: string;
+  };
 }
 
 export type QuizQuestion = MCQQuestion | FITBQuestion | MatchQuestion;

@@ -80,6 +80,7 @@ export const MOCK_QUIZ_MCQ: AIGenerationOutput = {
       explanation: 'Light-dependent reactions utilize solar energy to charge ATP and NADPH for the next stage.',
       difficulty: 'medium',
       bloomsLevel: 'remember',
+      evidence: { quote: 'Light-dependent reactions utilize solar energy...', pageRef: 'p.14' }
     },
   ],
 };
@@ -99,6 +100,7 @@ export const MOCK_QUIZ_FITB: AIGenerationOutput = {
       latex: null,
       difficulty: 'easy',
       bloomsLevel: 'remember',
+      evidence: { quote: 'The main pigment for photosynthesis is chlorophyll...', pageRef: 'p.12' }
     },
   ],
 };
@@ -120,6 +122,7 @@ export const MOCK_QUIZ_MATCH: AIGenerationOutput = {
       latex: null,
       difficulty: 'medium',
       bloomsLevel: 'understand',
+      evidence: { quote: 'Thylakoids are the site of light reactions while stroma hosts the Calvin cycle.', pageRef: 'p.15' }
     },
   ],
 };

@@ -4,7 +4,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { useTheme } from '@mui/material/styles';
-import useAIStudioStore from '@/store/aiStudioStore';
+import useAIStudioStore from '../../store/aiStudioStore';
 
 const EditorToolbar = () => {
   const theme = useTheme<any>();

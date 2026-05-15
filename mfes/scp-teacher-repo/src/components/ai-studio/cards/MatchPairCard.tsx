@@ -1,16 +1,26 @@
 import React from 'react';
-import { Box, Card, CardContent, TextField, IconButton, Typography, Stack, Grid, Button } from '@mui/material';
+import { Box, Card, CardContent, TextField, IconButton, Typography, Stack, Grid, Button, Skeleton, Divider } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { MatchQuestion, MatchPair } from '../../../utils/AIContentTypes';
+import SourceEvidenceChip from './SourceEvidenceChip';
 
 interface MatchPairCardProps {
   question: MatchQuestion;
   onUpdate: (q: MatchQuestion) => void;
   onDelete: () => void;
+  onRegenerate?: () => void;
+  isRegenerating?: boolean;
 }
 
-const MatchPairCard: React.FC<MatchPairCardProps> = ({ question, onUpdate, onDelete }) => {
+const MatchPairCard: React.FC<MatchPairCardProps> = ({ 
+  question, 
+  onUpdate, 
+  onDelete,
+  onRegenerate,
+  isRegenerating 
+}) => {
   const handleUpdatePair = (index: number, field: keyof MatchPair, val: string) => {
     const newPairs = question.pairs.map((p, i) => 
       i === index ? { ...p, [field]: val } : p
@@ -23,13 +33,27 @@ const MatchPairCard: React.FC<MatchPairCardProps> = ({ question, onUpdate, onDel
   };
 
   return (
-    <Card variant="outlined" sx={{ bgcolor: '#fff', borderRadius: '12px' }}>
+    <Card variant="outlined" sx={{ bgcolor: '#fff', borderRadius: '12px', position: 'relative', overflow: 'hidden' }}>
+      {isRegenerating && (
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, bgcolor: 'rgba(255,255,255,0.7)', display: 'flex', flexDirection: 'column', p: 4, gap: 2 }}>
+          <Skeleton variant="text" width="40%" height={40} animation="wave" />
+          <Skeleton variant="rectangular" width="100%" height={80} animation="wave" sx={{ borderRadius: '8px' }} />
+          <Skeleton variant="rectangular" width="100%" height={150} animation="wave" sx={{ borderRadius: '8px' }} />
+        </Box>
+      )}
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Typography variant="h3" sx={{ m: 0 }}>Match the Pair</Typography>
-          <IconButton onClick={onDelete} color="error" size="small">
-            <DeleteIcon />
-          </IconButton>
+          <Box>
+            {onRegenerate && (
+              <IconButton onClick={onRegenerate} color="primary" size="small" sx={{ mr: 1 }}>
+                <AutorenewIcon />
+              </IconButton>
+            )}
+            <IconButton onClick={onDelete} color="error" size="small">
+              <DeleteIcon />
+            </IconButton>
+          </Box>
         </Box>
 
         <TextField
@@ -99,6 +123,10 @@ const MatchPairCard: React.FC<MatchPairCardProps> = ({ question, onUpdate, onDel
           value={question.distractors.join(', ')}
           onChange={(e) => onUpdate({ ...question, distractors: e.target.value.split(',').map(s => s.trim()) })}
         />
+
+        <Box sx={{ mt: 3 }}>
+          <SourceEvidenceChip evidence={question.evidence} />
+        </Box>
       </CardContent>
     </Card>
   );

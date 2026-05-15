@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Box, Button, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Slider, ToggleButton, ToggleButtonGroup, Alert } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import useAIStudioStore from '@/store/aiStudioStore';
+import useAIStudioStore from '../../store/aiStudioStore';
 import { QuestionType, Difficulty } from '../../utils/AIContentTypes';
 import Loader from '../Loader';
-import { AIGatewayService } from '@/services/AIGatewayService';
+import { AIGatewayService } from '../../services/AIGatewayService';
 
 const QuizConfigPanel = () => {
   const theme = useTheme<any>();

@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { Box, Typography, Tabs, Tab, Button, Divider, Badge } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import useAIStudioStore from '@/store/aiStudioStore';
+import useAIStudioStore from '../../store/aiStudioStore';
 import KeyTakeawayEditor from './KeyTakeawayEditor';
 import GlossaryEditor from './GlossaryEditor';
 import QuizEditor from './QuizEditor';
 import EditorToolbar from './EditorToolbar';
+import BloomsChart from './BloomsChart';
+import { QuizOutput } from '../../utils/AIContentTypes';
 
 const ReviewEditor = () => {
   const theme = useTheme<any>();
   const { generatedOutputs, selectedOutputTypes, setStep } = useAIStudioStore();
   const [activeTab, setActiveTab] = useState(0);
 
-  const availableTabs = selectedOutputTypes.filter(type => generatedOutputs[type]);
+  const availableTabs = selectedOutputTypes.filter((type: string) => generatedOutputs[type]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -26,7 +28,15 @@ const ReviewEditor = () => {
       case 'glossary':
         return <GlossaryEditor />;
       case 'quiz':
-        return <QuizEditor />;
+        const quizOutput = generatedOutputs['quiz'] as QuizOutput;
+        return (
+          <Box>
+            <Box sx={{ mb: 3 }}>
+              <BloomsChart questions={quizOutput.questions} />
+            </Box>
+            <QuizEditor />
+          </Box>
+        );
       default:
         return null;
     }
@@ -51,7 +61,7 @@ const ReviewEditor = () => {
           textColor="primary"
           indicatorColor="primary"
         >
-          {availableTabs.map((type) => (
+          {availableTabs.map((type: string) => (
             <Tab 
               key={type} 
               label={type.replace('_', ' ').toUpperCase()} 

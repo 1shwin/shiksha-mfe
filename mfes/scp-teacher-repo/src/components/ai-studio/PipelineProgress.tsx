@@ -20,8 +20,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import { keyframes } from '@emotion/react';
 
-import useAIStudioStore from '@/store/aiStudioStore';
-import { useSSE } from '@/hooks/useSSE';
+import useAIStudioStore from '../../store/aiStudioStore';
+import { useSSE } from '../../hooks/useSSE';
 import { 
   PipelineStage, 
   StageStatus, 
@@ -29,8 +29,8 @@ import {
   STAGE_LABELS, 
   PIPELINE_STAGES_ORDERED, 
   STAGE_WEIGHTS 
-} from '@/types/sseTypes';
-import { AIGatewayService } from '@/services/AIGatewayService';
+} from '../../types/sseTypes';
+import { AIGatewayService } from '../../services/AIGatewayService';
 
 const pulse = keyframes`
   0% {

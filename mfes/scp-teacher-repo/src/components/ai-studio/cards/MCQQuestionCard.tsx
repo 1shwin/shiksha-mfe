@@ -1,15 +1,25 @@
 import React from 'react';
-import { Box, Card, CardContent, TextField, IconButton, Typography, Radio, RadioGroup, FormControlLabel, Stack, Button, Divider } from '@mui/material';
+import { Box, Card, CardContent, TextField, IconButton, Typography, Radio, RadioGroup, FormControlLabel, Stack, Button, Divider, Skeleton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { MCQQuestion, MCQAnswer } from '../../../utils/AIContentTypes';
+import SourceEvidenceChip from './SourceEvidenceChip';
 
 interface MCQQuestionCardProps {
   question: MCQQuestion;
   onUpdate: (q: MCQQuestion) => void;
   onDelete: () => void;
+  onRegenerate?: () => void;
+  isRegenerating?: boolean;
 }
 
-const MCQQuestionCard: React.FC<MCQQuestionCardProps> = ({ question, onUpdate, onDelete }) => {
+const MCQQuestionCard: React.FC<MCQQuestionCardProps> = ({ 
+  question, 
+  onUpdate, 
+  onDelete,
+  onRegenerate,
+  isRegenerating 
+}) => {
   const handleQuestionChange = (val: string) => {
     onUpdate({ ...question, question: val });
   };
@@ -30,13 +40,28 @@ const MCQQuestionCard: React.FC<MCQQuestionCardProps> = ({ question, onUpdate, o
   };
 
   return (
-    <Card variant="outlined" sx={{ bgcolor: '#fff', borderRadius: '12px' }}>
+    <Card variant="outlined" sx={{ bgcolor: '#fff', borderRadius: '12px', position: 'relative', overflow: 'hidden' }}>
+      {isRegenerating && (
+        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, bgcolor: 'rgba(255,255,255,0.7)', display: 'flex', flexDirection: 'column', p: 4, gap: 2 }}>
+          <Skeleton variant="text" width="60%" height={40} animation="wave" />
+          <Skeleton variant="rectangular" width="100%" height={120} animation="wave" sx={{ borderRadius: '8px' }} />
+          <Skeleton variant="rectangular" width="100%" height={60} animation="wave" sx={{ borderRadius: '8px' }} />
+          <Skeleton variant="rectangular" width="100%" height={60} animation="wave" sx={{ borderRadius: '8px' }} />
+        </Box>
+      )}
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Typography variant="h3" sx={{ m: 0 }}>Multiple Choice Question</Typography>
-          <IconButton onClick={onDelete} color="error" size="small">
-            <DeleteIcon />
-          </IconButton>
+          <Box>
+            {onRegenerate && (
+              <IconButton onClick={onRegenerate} color="primary" size="small" sx={{ mr: 1 }}>
+                <AutorenewIcon />
+              </IconButton>
+            )}
+            <IconButton onClick={onDelete} color="error" size="small">
+              <DeleteIcon />
+            </IconButton>
+          </Box>
         </Box>
 
         <TextField
@@ -87,6 +112,10 @@ const MCQQuestionCard: React.FC<MCQQuestionCardProps> = ({ question, onUpdate, o
           onChange={(e) => onUpdate({ ...question, explanation: e.target.value })}
           sx={{ mb: 2 }}
         />
+
+        <Box sx={{ mt: 2 }}>
+          <SourceEvidenceChip evidence={question.evidence} />
+        </Box>
       </CardContent>
     </Card>
   );

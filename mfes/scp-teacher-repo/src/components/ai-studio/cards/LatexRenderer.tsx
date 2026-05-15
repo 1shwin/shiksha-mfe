@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CodeIcon from '@mui/icons-material/Code';
-import { typeset } from '../../utils/mathjaxRenderer';
+import { typeset } from '../../../utils/mathjaxRenderer';
 
 interface LatexRendererProps {
   latex: string;

@@ -5,11 +5,13 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useTheme } from '@mui/material/styles';
-import useAIStudioStore from '@/store/aiStudioStore';
+import useAIStudioStore from '../../store/aiStudioStore';
 import { downloadH5P } from '../../utils/h5pPackager';
 import { downloadSCORM } from '../../utils/scormPackager';
 import { ValidationResult } from '../../utils/h5pValidator';
+import H5PPreview from './H5PPreview';
 
 const ExportPanel = () => {
   const theme = useTheme<any>();
@@ -19,6 +21,7 @@ const ExportPanel = () => {
   const [success, setSuccess] = useState(false);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [showErrors, setShowErrors] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const handleExportH5P = async () => {
     setIsPacking(true);
@@ -93,6 +96,21 @@ const ExportPanel = () => {
               >
                 {isPacking ? 'Compiling...' : 'Download .h5p'}
               </Button>
+
+              <Button
+                variant="text"
+                startIcon={<VisibilityIcon />}
+                onClick={() => setPreviewOpen(true)}
+                sx={{ mt: 1, color: 'text.secondary' }}
+              >
+                Preview Content
+              </Button>
+
+              <H5PPreview 
+                open={previewOpen} 
+                onClose={() => setPreviewOpen(false)} 
+                contentJson={generatedOutputs['quiz']} 
+              />
 
               {validationResult && !validationResult.valid && (
                 <Box sx={{ mt: 2, textAlign: 'left' }}>

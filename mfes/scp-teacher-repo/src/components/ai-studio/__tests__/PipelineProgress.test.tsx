@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import PipelineProgress from '../PipelineProgress';
-import useAIStudioStore from '@/store/aiStudioStore';
-import { PipelineStage, StageStatus } from '@/types/sseTypes';
+import useAIStudioStore from '../../../store/aiStudioStore';
+import { PipelineStage, StageStatus } from '../../../types/sseTypes';
 
 // Mock the store
-jest.mock('@/store/aiStudioStore');
-jest.mock('@/hooks/useSSE', () => ({
+jest.mock('../../../store/aiStudioStore');
+jest.mock('../../../hooks/useSSE', () => ({
   useSSE: jest.fn(() => ({ readyState: 1, error: null, close: jest.fn() }))
 }));
 

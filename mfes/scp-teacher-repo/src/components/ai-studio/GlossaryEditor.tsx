@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import { useTheme } from '@mui/material/styles';
-import useAIStudioStore from '@/store/aiStudioStore';
+import useAIStudioStore from '../../store/aiStudioStore';
 import { GlossaryOutput, GlossaryTerm } from '../../utils/AIContentTypes';
 import { v4 as uuidv4 } from 'uuid';
 

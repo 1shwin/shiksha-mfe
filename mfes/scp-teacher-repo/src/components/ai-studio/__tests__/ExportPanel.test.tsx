@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ExportPanel from '../ExportPanel';
-import useAIStudioStore from '@/store/aiStudioStore';
+import useAIStudioStore from '../../../store/aiStudioStore';
 import { downloadH5P } from '../../../utils/h5pPackager';
 import { downloadSCORM } from '../../../utils/scormPackager';
 
 // Mock dependencies
-jest.mock('@/store/aiStudioStore');
+jest.mock('../../../store/aiStudioStore');
 jest.mock('../../../utils/h5pPackager');
 jest.mock('../../../utils/scormPackager');
 

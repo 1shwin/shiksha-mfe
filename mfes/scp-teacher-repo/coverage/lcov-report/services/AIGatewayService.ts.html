@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">68.88% </span>
+                <span class="strong">44.44% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>31/45</span>
+                <span class='fraction'>20/45</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/3</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/3</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">68.88% </span>
+                <span class="strong">44.44% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>31/45</span>
+                <span class='fraction'>20/45</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -123,22 +123,6 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -150,8 +134,24 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const GATEWAY_URL = process.env.NEXT_PUBLIC_AI_GATEWAY_URL || 'http://localhost:8000';
 &nbsp;
@@ -167,16 +167,16 @@ export interface AssessmentResponse {
 }
 &nbsp;
 export const AIGatewayService = {
-  async uploadDocument(file: File): Promise&lt;IngestionResponse&gt; {
-    const formData = new FormData();
-    formData.append('file', file);
-    const res = await fetch(`${GATEWAY_URL}/api/v1/ingestion/upload`, {
-      method: 'POST',
-      body: formData,
-    });
-    if (!res.ok) <span class="branch-0 cbranch-no" title="branch not covered" >throw new Error(`Upload failed: ${res.status}`);</span>
-    return res.json();
-  },
+<span class="fstat-no" title="function not covered" >  async uploadDocument(file: File): Promise&lt;IngestionResponse&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    const formData = new FormData();</span>
+<span class="cstat-no" title="statement not covered" >    formData.append('file', file);</span>
+<span class="cstat-no" title="statement not covered" >    const res = await fetch(`${GATEWAY_URL}/api/v1/ingestion/upload`, {</span>
+<span class="cstat-no" title="statement not covered" >      method: 'POST',</span>
+<span class="cstat-no" title="statement not covered" >      body: formData,</span>
+<span class="cstat-no" title="statement not covered" >    });</span>
+<span class="cstat-no" title="statement not covered" >    if (!res.ok) throw new Error(`Upload failed: ${res.status}`);</span>
+<span class="cstat-no" title="statement not covered" >    return res.json();</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
 &nbsp;
 <span class="fstat-no" title="function not covered" >  async generateAssessment(params: {</span>
 <span class="cstat-no" title="statement not covered" >    source_text: string;</span>
@@ -194,9 +194,9 @@ export const AIGatewayService = {
 <span class="cstat-no" title="statement not covered" >    return res.json();</span>
 <span class="cstat-no" title="statement not covered" >  },</span>
 &nbsp;
-  getPipelineStreamUrl(jobId: string): string {
-    return `${GATEWAY_URL}/api/v1/pipeline/stream?job_id=${jobId}`;
-  },
+<span class="fstat-no" title="function not covered" >  getPipelineStreamUrl(jobId: string): string {</span>
+<span class="cstat-no" title="statement not covered" >    return `${GATEWAY_URL}/api/v1/pipeline/stream?job_id=${jobId}`;</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -205,7 +205,7 @@ export const AIGatewayService = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-15T20:57:31.706Z
+                at 2026-05-15T21:26:14.409Z
             </div>
         <script src="../prettify.js"></script>
         <script>

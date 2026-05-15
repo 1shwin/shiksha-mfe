@@ -39,6 +39,7 @@ interface AIStudioStore {
   pipelineStages: Record<PipelineStage, StageState>;
   pipelineError: { stage: PipelineStage; code: string; message: string } | null;
   pipelineStartedAt: number | null;
+  sourceText: string;
   
   // History for Undo/Redo
   history: HistoryState[];
@@ -97,6 +98,7 @@ const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   pipelineStages: createInitialStages(),
   pipelineError: null,
   pipelineStartedAt: null,
+  sourceText: '',
   
   history: [],
   historyIndex: -1,
