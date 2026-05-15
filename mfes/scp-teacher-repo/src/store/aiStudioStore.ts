@@ -40,6 +40,7 @@ interface AIStudioStore {
   pipelineError: { stage: PipelineStage; code: string; message: string } | null;
   pipelineStartedAt: number | null;
   sourceText: string;
+  selectedLanguage: string;
   
   // History for Undo/Redo
   history: HistoryState[];
@@ -52,6 +53,7 @@ interface AIStudioStore {
   setQuizConfig: (config: Partial<AIStudioStore['quizConfig']>) => void;
   setGeneratedOutputs: (outputs: Record<string, AIGenerationOutput>) => void;
   updateOutput: (type: string, output: AIGenerationOutput) => void;
+  setLanguage: (language: string) => void;
   
   // Pipeline Actions
   startPipeline: (jobId: string) => void;
@@ -99,6 +101,7 @@ const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   pipelineError: null,
   pipelineStartedAt: null,
   sourceText: '',
+  selectedLanguage: 'auto',
   
   history: [],
   historyIndex: -1,
@@ -130,6 +133,8 @@ const useAIStudioStore = create<AIStudioStore>((set, get) => ({
     set({ generatedOutputs: newOutputs });
     saveToHistory();
   },
+  
+  setLanguage: (language) => set({ selectedLanguage: language }),
 
   // Pipeline Actions
   startPipeline: (jobId: string) => set({

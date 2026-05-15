@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     artifact_root: Path = Path('/tmp/shiksha-ai-artifacts')
     temp_root: Path = Path('/tmp/shiksha-ai')
     whisper_model: str = 'large-v3'
+    hindi_model: str = 'Oriserve/Whisper-Hindi2Hinglish-Swift'
+    default_language: str = 'auto'
     mock_mode: bool = False
 
 settings = Settings()

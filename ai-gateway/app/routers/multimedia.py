@@ -1,13 +1,17 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
-from app.services.multimedia_service import multimedia_service
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query
+from app.services.multimedia_service import transcribe, infer_chapters
+from app.models.schemas import MultimediaResponse
 from app.core.config import settings
 import uuid
 import shutil
 
 router = APIRouter()
 
-@router.post("/transcribe")
-async def transcribe_media(file: UploadFile = File(...)):
+@router.post("/transcribe", response_model=MultimediaResponse)
+async def transcribe_media(
+    file: UploadFile = File(...),
+    language: str = Query(default='auto', regex='^(auto|en|hi)$'),
+):
     file_id = str(uuid.uuid4())
     ext = file.filename.split(".")[-1].lower()
     
@@ -15,17 +19,20 @@ async def transcribe_media(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Unsupported media format")
     
     temp_path = settings.temp_root / f"{file_id}.{ext}"
+    output_dir = settings.artifact_root / file_id
+    
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
-    result = await multimedia_service.transcribe(temp_path)
+    transcript, segments, txt_path, vtt_path = await transcribe(temp_path, output_dir, language)
+    chapters = infer_chapters(segments)
     
     return {
         "file_id": file_id,
         "filename": file.filename,
-        "transcript": result["transcript"],
-        "transcript_path": f"/artifacts/{file_id}.txt",
-        "vtt_path": f"/artifacts/{file_id}.vtt",
-        "segments": result["segments"],
-        "chapters": result["chapters"]
+        "transcript": transcript,
+        "transcript_path": f"/artifacts/{file_id}/{txt_path.name}",
+        "vtt_path": f"/artifacts/{file_id}/{vtt_path.name}",
+        "segments": segments,
+        "chapters": chapters
     }

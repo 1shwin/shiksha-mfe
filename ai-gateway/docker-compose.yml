@@ -2,7 +2,10 @@ services:
   gateway:
     build: .
     ports: ["8000:8000"]
-    volumes: ["./app:/app/app", "./artifacts:/tmp/shiksha-ai-artifacts"]
+    volumes:
+      - ./app:/app/app
+      - ./artifacts:/tmp/shiksha-ai-artifacts
+      - hf_cache:/root/.cache/huggingface
     environment:
       OLLAMA_API_URL: http://ollama:11434
       REDIS_URL: redis://redis:6379/0
@@ -26,3 +29,4 @@ services:
 
 volumes:
   ollama_data:
+  hf_cache:

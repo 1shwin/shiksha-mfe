@@ -42,4 +42,15 @@ export const AIGatewayService = {
   getPipelineStreamUrl(jobId: string): string {
     return `${GATEWAY_URL}/api/v1/pipeline/stream?job_id=${jobId}`;
   },
+  
+  async transcribeMedia(file: File, language: string = 'auto') {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(
+      `${GATEWAY_URL}/api/v1/multimedia/transcribe?language=${language}`,
+      { method: 'POST', body: formData }
+    );
+    if (!res.ok) throw new Error(`Transcription failed: ${res.status}`);
+    return res.json();
+  },
 };

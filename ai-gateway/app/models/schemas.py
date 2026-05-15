@@ -155,3 +155,23 @@ class MicroLessonResponse(BaseModel):
     file_paths: dict[str, str] = Field(default_factory=dict)
     xapi_events: list[dict] = Field(default_factory=list)
     generation_ms: int
+
+# --- Module E: Multimedia ---
+class TranscriptSegment(BaseModel):
+    start: float
+    end: float
+    text: str
+    speaker: str = 'SPEAKER_00'
+
+class Chapter(BaseModel):
+    title: str
+    start: float
+
+class MultimediaResponse(BaseModel):
+    file_id: str
+    filename: str
+    transcript: str
+    transcript_path: str
+    vtt_path: str
+    segments: list[TranscriptSegment]
+    chapters: list[Chapter]

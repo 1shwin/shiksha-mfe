@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Typography, Checkbox, FormControlLabel, Grid, Card, CardActionArea, CardContent } from '@mui/material';
+import { Box, Button, Typography, Checkbox, FormControlLabel, Grid, Card, CardActionArea, CardContent, ToggleButton, ToggleButtonGroup, Chip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -11,7 +11,13 @@ const AssetUploadStep = () => {
   const theme = useTheme<any>();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = React.useState(false);
-  const { selectedFile, setSelectedFile, selectedOutputTypes, toggleOutputType, setStep } = useAIStudioStore();
+  const { selectedFile, setSelectedFile, selectedOutputTypes, toggleOutputType, setStep, selectedLanguage, setLanguage } = useAIStudioStore();
+
+  const languageOptions = [
+    { value: 'auto', label: 'Auto-detect', icon: '🌐' },
+    { value: 'en', label: 'English', icon: '🇬🇧' },
+    { value: 'hi', label: 'Hindi (Hinglish output)', icon: '🇮🇳' },
+  ];
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -100,6 +106,40 @@ const AssetUploadStep = () => {
           </Box>
         )}
       </Box>
+
+      {selectedFile && (selectedFile.type.includes('video') || selectedFile.name.endsWith('.mp4') || selectedFile.name.endsWith('.mov')) && (
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h3" gutterBottom>
+            Transcription Language
+          </Typography>
+          <ToggleButtonGroup
+            value={selectedLanguage}
+            exclusive
+            onChange={(_, value) => value && setLanguage(value)}
+            aria-label="transcription language"
+            sx={{ mb: 2 }}
+          >
+            {languageOptions.map((option) => (
+              <ToggleButton key={option.value} value={option.value} sx={{ px: 3 }}>
+                <Box sx={{ mr: 1 }}>{option.icon}</Box>
+                {option.label}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+          
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {selectedLanguage === 'hi' && (
+              <Chip label="Powered by Whisper-Hindi2Hinglish-Swift" color="primary" size="small" />
+            )}
+            {selectedLanguage === 'en' && (
+              <Chip label="Powered by OpenAI Whisper" variant="outlined" size="small" />
+            )}
+            {selectedLanguage === 'auto' && (
+              <Chip label="Whisper Auto-detection active" variant="outlined" size="small" />
+            )}
+          </Box>
+        </Box>
+      )}
 
       <Typography variant="h2" sx={{ mb: 2 }}>
         2. Select Output Types
