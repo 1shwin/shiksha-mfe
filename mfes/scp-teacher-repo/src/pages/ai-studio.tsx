@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 // Dynamic imports for steps with SSR disabled to prevent hydration issues in MFE
 const AssetUploadStep = dynamic(() => import('@/components/ai-studio/AssetUploadStep'), { ssr: false });
 const QuizConfigPanel = dynamic(() => import('@/components/ai-studio/QuizConfigPanel'), { ssr: false });
+const PipelineProgress = dynamic(() => import('@/components/ai-studio/PipelineProgress'), { ssr: false });
 const ReviewEditor = dynamic(() => import('@/components/ai-studio/ReviewEditor'), { ssr: false });
 const ExportPanel = dynamic(() => import('@/components/ai-studio/ExportPanel'), { ssr: false });
 
@@ -34,8 +35,10 @@ const AIStudioPage = () => {
       case 1:
         return <QuizConfigPanel />;
       case 2:
-        return <ReviewEditor />;
+        return <PipelineProgress />;
       case 3:
+        return <ReviewEditor />;
+      case 4:
         return <ExportPanel />;
       default:
         return <div>Unknown step</div>;

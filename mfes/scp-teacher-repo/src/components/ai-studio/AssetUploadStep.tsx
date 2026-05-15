@@ -16,7 +16,7 @@ const AssetUploadStep = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      setSelectedFile({ name: file.name, size: file.size });
+      setSelectedFile(file);
     }
   };
 
@@ -34,7 +34,7 @@ const AssetUploadStep = () => {
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
-      setSelectedFile({ name: file.name, size: file.size });
+      setSelectedFile(file);
     }
   };
 

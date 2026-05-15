@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
-import { Box, Button, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Slider, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Box, Button, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Slider, ToggleButton, ToggleButtonGroup, Alert } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import useAIStudioStore from '@/store/aiStudioStore';
 import { QuestionType, Difficulty } from '../../utils/AIContentTypes';
-import { MOCK_KEY_TAKEAWAYS, MOCK_GLOSSARY, MOCK_QUIZ_MCQ, MOCK_QUIZ_FITB, MOCK_QUIZ_MATCH } from '../../data/mockData';
 import Loader from '../Loader';
+import { AIGatewayService } from '@/services/AIGatewayService';
 
 const QuizConfigPanel = () => {
   const theme = useTheme<any>();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const { 
     quizConfig, 
     setQuizConfig, 
     setStep, 
     selectedOutputTypes,
-    setGeneratedOutputs
+    selectedFile,
+    startPipeline
   } = useAIStudioStore();
 
   const handleTypeChange = (event: React.MouseEvent<HTMLElement>, newType: QuestionType) => {
@@ -27,42 +30,44 @@ const QuizConfigPanel = () => {
     setQuizConfig({ difficulty: (event.target as HTMLInputElement).value as Difficulty });
   };
 
-  const handleGenerate = () => {
-    setIsGenerating(true);
+  const handleGenerate = async () => {
+    if (!selectedFile) return;
     
-    // Simulate AI Latency
-    setTimeout(() => {
-      const outputs: any = {};
+    setIsGenerating(true);
+    setError(null);
+    
+    try {
+      // Step 1: Upload the file to the gateway
+      const ingestionResult = await AIGatewayService.uploadDocument(selectedFile);
       
-      if (selectedOutputTypes.includes('key_takeaways')) {
-        outputs.key_takeaways = MOCK_KEY_TAKEAWAYS;
-      }
+      // Step 2: Start a pipeline job
+      const jobId = ingestionResult.file_id;
+      startPipeline(jobId);
       
-      if (selectedOutputTypes.includes('glossary')) {
-        outputs.glossary = MOCK_GLOSSARY;
-      }
-      
-      if (selectedOutputTypes.includes('quiz')) {
-        if (quizConfig.questionType === 'mcq') outputs.quiz = MOCK_QUIZ_MCQ;
-        if (quizConfig.questionType === 'fill_in_the_blanks') outputs.quiz = MOCK_QUIZ_FITB;
-        if (quizConfig.questionType === 'match_the_pair') outputs.quiz = MOCK_QUIZ_MATCH;
-      }
-
-      setGeneratedOutputs(outputs);
-      setIsGenerating(false);
+      // Step 3: Advance to the Processing step (index 2)
       setStep(2);
-    }, 2000);
+    } catch (err: any) {
+      console.error('Pipeline start failed:', err);
+      setError(err.message || 'Failed to start AI pipeline. Please check if the gateway is running.');
+      setIsGenerating(false);
+    }
   };
 
   const hasQuizSelected = selectedOutputTypes.includes('quiz');
 
   return (
     <Box>
-      <Loader showBackdrop={isGenerating} loadingText="AI is analyzing your content..." />
+      <Loader showBackdrop={isGenerating} loadingText="Initiating AI Pipeline..." />
       
       <Typography variant="h2" gutterBottom>
         Configuration & Parameters
       </Typography>
+      
+      {error && (
+        <Alert severity="error" sx={{ mb: 4, borderRadius: '12px' }}>
+          {error}
+        </Alert>
+      )}
       
       {!hasQuizSelected ? (
         <Box sx={{ py: 4, textAlign: 'center' }}>
@@ -123,6 +128,7 @@ const QuizConfigPanel = () => {
           variant="contained"
           onClick={handleGenerate}
           sx={{ px: 6, borderRadius: '100px' }}
+          disabled={isGenerating}
         >
           Generate AI Content
         </Button>

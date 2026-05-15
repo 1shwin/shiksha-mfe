@@ -8,7 +8,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import { useTheme } from '@mui/material/styles';
 
-const steps = ['Upload', 'Configure', 'Review', 'Export'];
+const steps = ['Upload', 'Configure', 'Processing', 'Review', 'Export'];
 
 interface AIStudioStepperProps {
   activeStep: number;

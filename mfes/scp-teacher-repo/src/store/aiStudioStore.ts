@@ -1,14 +1,29 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { AIGenerationOutput, QuestionType, Difficulty } from '../utils/AIContentTypes';
+import { 
+  PipelineStage, 
+  StageStatus, 
+  PIPELINE_STAGES_ORDERED,
+  PipelineStageEvent,
+  PipelineProgressEvent,
+  PipelineCompleteEvent,
+  PipelineErrorEvent
+} from '../types/sseTypes';
 
 interface HistoryState {
   outputs: Record<string, AIGenerationOutput>;
 }
 
+export interface StageState {
+  status: StageStatus;
+  progress: number;
+  message: string;
+}
+
 interface AIStudioStore {
   currentStep: number;
-  selectedFile: { name: string; size: number } | null;
+  selectedFile: File | null;
   selectedOutputTypes: string[];
   quizConfig: {
     questionType: QuestionType;
@@ -18,23 +33,50 @@ interface AIStudioStore {
   generatedOutputs: Record<string, AIGenerationOutput>;
   originalOutputs: Record<string, AIGenerationOutput>;
   
+  // Pipeline State
+  pipelineJobId: string | null;
+  pipelineStatus: 'idle' | 'running' | 'completed' | 'failed';
+  pipelineStages: Record<PipelineStage, StageState>;
+  pipelineError: { stage: PipelineStage; code: string; message: string } | null;
+  pipelineStartedAt: number | null;
+  
   // History for Undo/Redo
   history: HistoryState[];
   historyIndex: number;
 
   // Actions
   setStep: (step: number) => void;
-  setSelectedFile: (file: { name: string; size: number } | null) => void;
+  setSelectedFile: (file: File | null) => void;
   toggleOutputType: (type: string) => void;
   setQuizConfig: (config: Partial<AIStudioStore['quizConfig']>) => void;
   setGeneratedOutputs: (outputs: Record<string, AIGenerationOutput>) => void;
   updateOutput: (type: string, output: AIGenerationOutput) => void;
   
+  // Pipeline Actions
+  startPipeline: (jobId: string) => void;
+  handleStageEvent: (event: PipelineStageEvent) => void;
+  handleProgressEvent: (event: PipelineProgressEvent) => void;
+  handleCompleteEvent: (event: PipelineCompleteEvent) => void;
+  handleErrorEvent: (event: PipelineErrorEvent) => void;
+  resetPipeline: () => void;
+
   // Undo/Redo Actions
   saveToHistory: () => void;
   undo: () => void;
   redo: () => void;
   resetToOriginal: (type: string) => void;
+}
+
+function createInitialStages(): Record<PipelineStage, StageState> {
+  const stages = {} as Record<PipelineStage, StageState>;
+  for (const stage of PIPELINE_STAGES_ORDERED) {
+    stages[stage] = {
+      status: StageStatus.PENDING,
+      progress: 0,
+      message: '',
+    };
+  }
+  return stages;
 }
 
 const useAIStudioStore = create<AIStudioStore>((set, get) => ({
@@ -48,6 +90,14 @@ const useAIStudioStore = create<AIStudioStore>((set, get) => ({
   },
   generatedOutputs: {},
   originalOutputs: {},
+  
+  // Pipeline Initial State
+  pipelineJobId: null,
+  pipelineStatus: 'idle',
+  pipelineStages: createInitialStages(),
+  pipelineError: null,
+  pipelineStartedAt: null,
+  
   history: [],
   historyIndex: -1,
 
@@ -78,6 +128,75 @@ const useAIStudioStore = create<AIStudioStore>((set, get) => ({
     set({ generatedOutputs: newOutputs });
     saveToHistory();
   },
+
+  // Pipeline Actions
+  startPipeline: (jobId: string) => set({
+    pipelineJobId: jobId,
+    pipelineStatus: 'running',
+    pipelineStages: createInitialStages(),
+    pipelineError: null,
+    pipelineStartedAt: Date.now(),
+  }),
+
+  handleStageEvent: (event) => set((state) => {
+    if (state.pipelineStages[event.stage].status === event.status) {
+      return state;
+    }
+    const progress = event.status === StageStatus.COMPLETED ? 100 : state.pipelineStages[event.stage].progress;
+    return {
+      pipelineStages: {
+        ...state.pipelineStages,
+        [event.stage]: {
+          ...state.pipelineStages[event.stage],
+          status: event.status,
+          message: event.message,
+          progress,
+        }
+      }
+    };
+  }),
+
+  handleProgressEvent: (event) => set((state) => ({
+    pipelineStages: {
+      ...state.pipelineStages,
+      [event.stage]: {
+        ...state.pipelineStages[event.stage],
+        progress: event.percent,
+        message: event.detail,
+      }
+    }
+  })),
+
+  handleCompleteEvent: (event) => {
+    set({
+      pipelineStatus: 'completed',
+    });
+  },
+
+  handleErrorEvent: (event) => set((state) => ({
+    pipelineStatus: 'failed',
+    pipelineError: {
+      stage: event.stage,
+      code: event.code,
+      message: event.message,
+    },
+    pipelineStages: {
+      ...state.pipelineStages,
+      [event.stage]: {
+        ...state.pipelineStages[event.stage],
+        status: StageStatus.FAILED,
+        message: event.message,
+      }
+    }
+  })),
+
+  resetPipeline: () => set({
+    pipelineJobId: null,
+    pipelineStatus: 'idle',
+    pipelineStages: createInitialStages(),
+    pipelineError: null,
+    pipelineStartedAt: null,
+  }),
 
   saveToHistory: () => {
     const { generatedOutputs, history, historyIndex } = get();
