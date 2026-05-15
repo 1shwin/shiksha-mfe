@@ -2,10 +2,12 @@ import * as fflate from 'fflate';
 import { H5P_MANIFEST_TEMPLATE, QUESTION_SET_PARAMS_TEMPLATE } from './h5pTemplates';
 import { QuizOutput, MCQQuestion, FITBQuestion, MatchQuestion } from './AIContentTypes';
 
+import { validateH5PQuestionSet, ValidationResult } from './h5pValidator';
+
 /**
  * Transforms our QuizOutput JSON into H5P content.json structure.
  */
-const transformQuizToH5P = (quiz: QuizOutput) => {
+export const transformQuizToH5P = (quiz: QuizOutput) => {
   const h5pQuestions = quiz.questions.map((q) => {
     if (quiz.questionType === 'mcq') {
       const mcq = q as MCQQuestion;
@@ -75,12 +77,20 @@ const transformQuizToH5P = (quiz: QuizOutput) => {
 /**
  * Packs generated content into an H5P zip and triggers download.
  */
-export const downloadH5P = async (generatedOutputs: Record<string, any>) => {
+export const downloadH5P = async (generatedOutputs: Record<string, any>): Promise<ValidationResult> => {
   const quiz = generatedOutputs['quiz'] as QuizOutput;
   if (!quiz) throw new Error("No quiz content to pack");
 
+  const contentJsonRaw = transformQuizToH5P(quiz);
+  
+  // Validate BEFORE packaging
+  const validation = validateH5PQuestionSet(contentJsonRaw);
+  if (!validation.valid) {
+    return validation; // Return errors to caller, don't create zip
+  }
+
   const h5pJson = JSON.stringify(H5P_MANIFEST_TEMPLATE, null, 2);
-  const contentJson = JSON.stringify(transformQuizToH5P(quiz), null, 2);
+  const contentJson = JSON.stringify(contentJsonRaw, null, 2);
 
   const zipData: fflate.Zippable = {
     'h5p.json': fflate.strToU8(h5pJson),
@@ -89,7 +99,7 @@ export const downloadH5P = async (generatedOutputs: Record<string, any>) => {
     }
   };
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<ValidationResult>((resolve, reject) => {
     fflate.zip(zipData, (err, data) => {
       if (err) return reject(err);
       
@@ -102,7 +112,8 @@ export const downloadH5P = async (generatedOutputs: Record<string, any>) => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      resolve();
+      resolve(validation);
     });
   });
 };
+
