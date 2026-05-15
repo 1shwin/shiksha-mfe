@@ -43,6 +43,7 @@
     "express-http-proxy": "^2.0.0",
     "fancytree": "^0.0.0",
     "feather-icons-react": "^0.7.0",
+    "fflate": "^0.8.2",
     "fingerprintjs2": "^2.1.4",
     "firebase": "^9.0.0",
     "fs": "^0.0.1-security",
