@@ -49,3 +49,18 @@ out
 .env
 .env.dev
 .env.dev.env.dev
+
+# Python
+**/__pycache__/
+**/*.pyc
+
+# MFE Build outputs
+build/
+mfes/*/build/
+
+# PWA / Service Workers
+**/public/sw.js
+**/public/workbox-*.js
+
+# AI Gateway Scratch
+ai-gateway/scratch/
