@@ -5,6 +5,7 @@ import useAIStudioStore from '../../store/aiStudioStore';
 import KeyTakeawayEditor from './KeyTakeawayEditor';
 import GlossaryEditor from './GlossaryEditor';
 import QuizEditor from './QuizEditor';
+import LessonEditor from './LessonEditor';
 import EditorToolbar from './EditorToolbar';
 import BloomsChart from './BloomsChart';
 import { QuizOutput } from '../../utils/AIContentTypes';
@@ -37,6 +38,8 @@ const ReviewEditor = () => {
             <QuizEditor />
           </Box>
         );
+      case 'lesson':
+        return <LessonEditor />;
       default:
         return null;
     }

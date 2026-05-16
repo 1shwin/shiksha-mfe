@@ -1,33 +1,34 @@
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import LessonStatus, MicroLessonResponse, Branding
-from app.services.review_service import review_service
-import uuid
-import time
+from app.models.schemas import MicroLessonRequest, MicroLessonResponse
+from app.services.lesson_service import build_lesson
+from app.services.review_service import approve, publish, read_status
 
 router = APIRouter()
 
-@router.post("/generate", response_model=MicroLessonResponse)
-async def generate_lesson(title: str, source_text: str, branding: Branding):
-    start_time = time.time()
-    lesson_id = str(uuid.uuid4())
-    
-    # Mock generation logic
-    processing_ms = int((time.time() - start_time) * 1000)
-    
-    return MicroLessonResponse(
-        lesson_id=lesson_id,
-        status=LessonStatus.draft,
-        file_paths={"h5p": f"/artifacts/{lesson_id}.h5p"},
-        xapi_events=[],
-        generation_ms=processing_ms
-    )
+@router.post('/generate', response_model=MicroLessonResponse)
+async def generate_lesson(request: MicroLessonRequest):
+    result = await build_lesson(request.title, request.source_text, request.branding)
+    return result
 
-@router.post("/{id}/approve")
-async def approve_lesson(id: str):
-    review_service.approve(id)
-    return {"status": "approved", "lesson_id": id}
+@router.post('/{lesson_id}/approve')
+def approve_lesson(lesson_id: str):
+    try:
+        return {'lesson_id': lesson_id, 'status': approve(lesson_id)}
+    except FileNotFoundError:
+        raise HTTPException(404, 'Lesson not found')
 
-@router.post("/{id}/publish")
-async def publish_lesson(id: str):
-    review_service.publish(id)
-    return {"status": "published", "lesson_id": id}
+@router.post('/{lesson_id}/publish')
+def publish_lesson(lesson_id: str):
+    try:
+        return {'lesson_id': lesson_id, 'status': publish(lesson_id)}
+    except FileNotFoundError:
+        raise HTTPException(404, 'Lesson not found')
+    except PermissionError as e:
+        raise HTTPException(409, str(e))
+
+@router.get('/{lesson_id}/status')
+def lesson_status(lesson_id: str):
+    try:
+        return {'lesson_id': lesson_id, 'status': read_status(lesson_id)}
+    except FileNotFoundError:
+        raise HTTPException(404, 'Lesson not found')

@@ -149,12 +149,21 @@ class LessonStatus(str, Enum):
     approved = 'approved'
     published = 'published'
 
+class MicroLessonRequest(BaseModel):
+    title: str
+    source_text: str
+    branding: Branding
+
 class MicroLessonResponse(BaseModel):
     lesson_id: str
+    title: str
     status: LessonStatus
+    slides: list[dict] = Field(default_factory=list)
+    html_content: str = ""
     file_paths: dict[str, str] = Field(default_factory=dict)
     xapi_events: list[dict] = Field(default_factory=list)
     generation_ms: int
+
 
 # --- Module E: Multimedia ---
 class TranscriptSegment(BaseModel):

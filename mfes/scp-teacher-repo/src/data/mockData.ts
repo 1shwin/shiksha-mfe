@@ -126,3 +126,17 @@ export const MOCK_QUIZ_MATCH: AIGenerationOutput = {
     },
   ],
 };
+
+export const MOCK_LESSON: AIGenerationOutput = {
+  type: 'lesson',
+  sourceFile: 'Biology_Ch3_Photosynthesis.pdf',
+  generatedAt: new Date().toISOString(),
+  slides: [
+    { id: 's1', title: 'What is Photosynthesis?', body: 'Photosynthesis is the process by which plants convert light energy into chemical energy stored in glucose.' },
+    { id: 's2', title: 'The Light Reactions', body: 'Light-dependent reactions occur in the thylakoid membranes, where water is split and ATP/NADPH are produced.' },
+    { id: 's3', title: 'The Calvin Cycle', body: 'In the stroma, CO₂ is fixed into glucose using the ATP and NADPH from the light reactions.' },
+  ],
+  htmlContent: '<!DOCTYPE html><html><body><h1>Mock Lesson</h1></body></html>',
+  branding: { primaryColor: '#123B5D', secondaryColor: '#F5A623', fontFamily: 'Inter, Arial, sans-serif' },
+};
+

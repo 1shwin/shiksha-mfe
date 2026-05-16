@@ -5,6 +5,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import QuizIcon from '@mui/icons-material/Quiz';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 import useAIStudioStore from '../../store/aiStudioStore';
 
 const AssetUploadStep = () => {
@@ -48,6 +49,7 @@ const AssetUploadStep = () => {
     { type: 'key_takeaways', label: 'Key Takeaways', icon: <AssignmentIcon />, description: 'Summary of main concepts and learning points.' },
     { type: 'glossary', label: 'Glossary', icon: <MenuBookIcon />, description: 'Technical terms and definitions extracted from text.' },
     { type: 'quiz', label: 'Interactive Quiz', icon: <QuizIcon />, description: 'MCQs, Fill-in-the-blanks, and Match-the-pair.' },
+    { type: 'lesson', label: 'Micro-Lesson', icon: <SlideshowIcon />, description: 'HTML5 slide deck with branding.' },
   ];
 
   const handleNext = () => {

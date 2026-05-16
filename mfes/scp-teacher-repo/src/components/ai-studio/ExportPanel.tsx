@@ -56,6 +56,7 @@ const ExportPanel = () => {
     if (generatedOutputs['key_takeaways']) parts.push(`${(generatedOutputs['key_takeaways'] as any).takeaways.length} Takeaways`);
     if (generatedOutputs['glossary']) parts.push(`${(generatedOutputs['glossary'] as any).terms.length} Glossary Terms`);
     if (generatedOutputs['quiz']) parts.push(`${(generatedOutputs['quiz'] as any).questions.length} Quiz Questions`);
+    if (generatedOutputs['lesson']) parts.push(`${(generatedOutputs['lesson'] as any).slides.length} Slides`);
     return parts.join(', ');
   };
 
@@ -188,6 +189,42 @@ const ExportPanel = () => {
             </CardContent>
           </Card>
         </Grid>
+
+        {/* Lesson HTML Card */}
+        {generatedOutputs['lesson'] && (
+          <Grid item xs={12} md={4}>
+            <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: theme.palette.success.light + '08', borderColor: theme.palette.success.main }}>
+              <CardContent sx={{ py: 4, flexGrow: 1 }}>
+                <Typography variant="h3" gutterBottom>HTML5 Slide Deck</Typography>
+                <Typography variant="body2" sx={{ mb: 4 }}>
+                  Branded standalone lesson. Opens in any browser. Great for direct distribution.
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="success"
+                  size="large"
+                  startIcon={<FileDownloadIcon />}
+                  onClick={() => {
+                    const lesson = generatedOutputs['lesson'] as any;
+                    const blob = new Blob([lesson.htmlContent], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${lesson.sourceFile.replace(/\.[^/.]+$/, "")}_lesson.html`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    setSuccess(true);
+                  }}
+                  sx={{ px: 4, borderRadius: '100px' }}
+                >
+                  Download .html
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
       </Grid>
 
       {success && validationResult?.valid && (

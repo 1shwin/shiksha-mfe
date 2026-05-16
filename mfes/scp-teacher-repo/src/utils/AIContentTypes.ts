@@ -101,7 +101,27 @@ export interface QuizOutput {
   questions: QuizQuestion[];
 }
 
-export type AIGenerationOutput = KeyTakeawaysOutput | GlossaryOutput | QuizOutput;
+export interface LessonSlide {
+  id: string;
+  title: string;
+  body: string;
+}
+
+export interface LessonOutput {
+  type: 'lesson';
+  sourceFile: string;
+  generatedAt: string;
+  slides: LessonSlide[];
+  htmlContent: string;
+  branding: {
+    primaryColor: string;
+    secondaryColor: string;
+    fontFamily: string;
+  };
+}
+
+export type AIGenerationOutput = KeyTakeawaysOutput | GlossaryOutput | QuizOutput | LessonOutput;
+
 
 export interface AIStudioState {
   currentStep: number;
