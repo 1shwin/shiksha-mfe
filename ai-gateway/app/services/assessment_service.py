@@ -1,5 +1,6 @@
 from app.models.schemas import AssessmentRequest, AssessmentResponse, MCQQuestion, FITBQuestion, MatchQuestion, QuestionType
 from app.services.llm_client import llm_client
+from app.core.config import settings
 import json
 
 class AssessmentService:
@@ -34,6 +35,8 @@ class AssessmentService:
         """
 
     def _validate_evidence(self, question: dict, source_text: str) -> bool:
+        if settings.mock_mode:
+            return True
         evidence = question.get("evidence")
         if not evidence:
             return False
