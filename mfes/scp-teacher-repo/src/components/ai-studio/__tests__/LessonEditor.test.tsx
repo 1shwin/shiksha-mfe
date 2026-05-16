@@ -50,8 +50,10 @@ describe('LessonEditor', () => {
     fireEvent.click(addButton);
     
     expect(mockUpdateOutput).toHaveBeenCalledWith('lesson', expect.objectContaining({
-      slides: expect.toHaveLength((MOCK_LESSON as any).slides.length + 1)
+      slides: expect.any(Array)
     }));
+    const updatedSlides = mockUpdateOutput.mock.calls.find(call => call[0] === 'lesson')[1].slides;
+    expect(updatedSlides).toHaveLength((MOCK_LESSON as any).slides.length + 1);
   });
 
   it('deleting a slide removes from the list', () => {
@@ -60,8 +62,10 @@ describe('LessonEditor', () => {
     fireEvent.click(deleteButtons[0]);
     
     expect(mockUpdateOutput).toHaveBeenCalledWith('lesson', expect.objectContaining({
-      slides: expect.toHaveLength((MOCK_LESSON as any).slides.length - 1)
+      slides: expect.any(Array)
     }));
+    const updatedSlides = mockUpdateOutput.mock.calls.find(call => call[0] === 'lesson')[1].slides;
+    expect(updatedSlides).toHaveLength((MOCK_LESSON as any).slides.length - 1);
   });
 
   it('changing branding color updates the store', () => {

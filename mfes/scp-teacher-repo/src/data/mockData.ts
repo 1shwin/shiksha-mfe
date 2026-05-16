@@ -137,6 +137,6 @@ export const MOCK_LESSON: AIGenerationOutput = {
     { id: 's3', title: 'The Calvin Cycle', body: 'In the stroma, CO₂ is fixed into glucose using the ATP and NADPH from the light reactions.' },
   ],
   htmlContent: '<!DOCTYPE html><html><body><h1>Mock Lesson</h1></body></html>',
-  branding: { primaryColor: '#123B5D', secondaryColor: '#F5A623', fontFamily: 'Inter, Arial, sans-serif' },
+  branding: { primaryColor: '#123B5D', secondaryColor: '#F5A623', fontFamily: 'Inter, sans-serif' },
 };
 

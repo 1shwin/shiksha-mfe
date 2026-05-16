@@ -4,6 +4,9 @@ import ExportPanel from '../ExportPanel';
 import useAIStudioStore from '../../../store/aiStudioStore';
 import { downloadH5P } from '../../../utils/h5pPackager';
 import { downloadSCORM } from '../../../utils/scormPackager';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme();
 
 // Mock dependencies
 jest.mock('../../../store/aiStudioStore');
@@ -28,7 +31,11 @@ describe('ExportPanel', () => {
   });
 
   it('renders H5P, SCORM, and JSON export cards', () => {
-    render(<ExportPanel />);
+    render(
+      <ThemeProvider theme={theme}>
+        <ExportPanel />
+      </ThemeProvider>
+    );
     expect(screen.getByText(/H5P Package/i)).toBeInTheDocument();
     expect(screen.getByText(/SCORM 1.2/i)).toBeInTheDocument();
     expect(screen.getByText(/Raw JSON/i)).toBeInTheDocument();
@@ -37,7 +44,11 @@ describe('ExportPanel', () => {
   it('shows validation success badge after successful H5P export', async () => {
     (downloadH5P as jest.Mock).mockResolvedValue({ valid: true, errors: [], warnings: [] });
     
-    render(<ExportPanel />);
+    render(
+      <ThemeProvider theme={theme}>
+        <ExportPanel />
+      </ThemeProvider>
+    );
     const h5pBtn = screen.getByText(/Download .h5p/i);
     fireEvent.click(h5pBtn);
 
@@ -53,7 +64,11 @@ describe('ExportPanel', () => {
       warnings: [] 
     });
     
-    render(<ExportPanel />);
+    render(
+      <ThemeProvider theme={theme}>
+        <ExportPanel />
+      </ThemeProvider>
+    );
     const h5pBtn = screen.getByText(/Download .h5p/i);
     fireEvent.click(h5pBtn);
 
@@ -69,7 +84,11 @@ describe('ExportPanel', () => {
   it('SCORM download triggers packager', async () => {
     (downloadSCORM as jest.Mock).mockResolvedValue(undefined);
     
-    render(<ExportPanel />);
+    render(
+      <ThemeProvider theme={theme}>
+        <ExportPanel />
+      </ThemeProvider>
+    );
     const scormBtn = screen.getByText(/Download .zip/i);
     fireEvent.click(scormBtn);
 

@@ -4,16 +4,27 @@ import '@testing-library/jest-dom';
 import BloomsChart from '../BloomsChart';
 
 // Mock Recharts entirely to avoid SVG issues in JSDOM
+// Mock Recharts to render simple divs with data for testing
 jest.mock('recharts', () => ({
-  ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
-  BarChart: ({ children }: any) => <div>{children}</div>,
+  ResponsiveContainer: ({ children }: any) => <div data-testid="responsive-container">{children}</div>,
+  BarChart: ({ data, children }: any) => (
+    <div data-testid="bar-chart">
+      {data.map((d: any) => (
+        <div key={d.name}>
+          <span>{d.name}</span>
+          <span>{d.count}</span>
+        </div>
+      ))}
+      {children}
+    </div>
+  ),
   Bar: ({ children }: any) => <div>{children}</div>,
-  XAxis: () => <div>XAxis</div>,
-  YAxis: () => <div>YAxis</div>,
-  CartesianGrid: () => <div>CartesianGrid</div>,
-  Tooltip: () => <div>Tooltip</div>,
-  Cell: () => <div>Cell</div>,
-  LabelList: () => <div>LabelList</div>,
+  XAxis: () => null,
+  YAxis: () => null,
+  CartesianGrid: () => null,
+  Tooltip: () => null,
+  Cell: () => null,
+  LabelList: () => null,
 }));
 
 describe('BloomsChart', () => {
@@ -37,7 +48,7 @@ describe('BloomsChart', () => {
     render(<BloomsChart questions={mockQuestions} />);
     // Check for the counts (rendered as labels in the bar)
     expect(screen.getByText('2')).toBeInTheDocument(); // remember count
-    expect(screen.getByText('1')).toBeInTheDocument(); // understand count
+    expect(screen.getAllByText('1')).toHaveLength(2); // understand and apply count
   });
 
   it('handles empty questions array gracefully', () => {
