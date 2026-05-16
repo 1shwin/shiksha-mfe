@@ -26,17 +26,17 @@ class ReviewService:
         self._lessons[lesson_id] = LessonStatus.published
         return LessonStatus.published
 
-_review_service = ReviewService()
+review_service = ReviewService()
 
 # Export functions for cleaner API routing
 def init_status(lesson_id: str):
-    return _review_service.init_status(lesson_id)
+    return review_service.init_status(lesson_id)
 
 def read_status(lesson_id: str):
-    return _review_service.get_status(lesson_id)
+    return review_service.get_status(lesson_id)
 
 def approve(lesson_id: str):
-    return _review_service.approve(lesson_id)
+    return review_service.approve(lesson_id)
 
 def publish(lesson_id: str):
-    return _review_service.publish(lesson_id)
+    return review_service.publish(lesson_id)

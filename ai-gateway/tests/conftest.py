@@ -19,8 +19,12 @@ def sample_pdf():
     c = canvas.Canvas(path)
     c.setFont("Helvetica-Bold", 16)
     c.drawString(100, 750, "Photosynthesis")
-    c.setFont("Helvetica", 12)
-    c.drawString(100, 730, "Photosynthesis is a process used by plants and other organisms to convert light energy into chemical energy.")
+    
+    # Use a text object for the body text to ensure robust stream generation
+    t = c.beginText(100, 730)
+    t.setFont("Helvetica", 12)
+    t.textLine("This is a process used by plants and other organisms to convert light energy into chemical energy.")
+    c.drawText(t)
     c.save()
     yield Path(path)
     if os.path.exists(path):

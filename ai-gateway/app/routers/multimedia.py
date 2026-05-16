@@ -10,7 +10,7 @@ router = APIRouter()
 @router.post("/transcribe", response_model=MultimediaResponse)
 async def transcribe_media(
     file: UploadFile = File(...),
-    language: str = Query(default='auto', regex='^(auto|en|hi)$'),
+    language: str = Query(default='auto', pattern='^(auto|en|hi)$'),
 ):
     file_id = str(uuid.uuid4())
     ext = file.filename.split(".")[-1].lower()

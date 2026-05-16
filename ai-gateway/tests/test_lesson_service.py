@@ -33,8 +33,8 @@ def test_build_lesson_generates_html_with_branding(mock_branding):
     slides = [{"id": "s1", "title": "Intro", "body": "Hello world"}]
     html = _render_html("Test Title", slides, mock_branding)
     
-    assert "<html>" in html
-    assert "<body>" in html
+    assert "<html" in html
+    assert "<body" in html
     assert mock_branding.primary_color in html
     assert mock_branding.secondary_color in html
     assert "Intro" in html

@@ -9,13 +9,21 @@ class IngestionService:
         pages = []
         for i, page in enumerate(doc):
             blocks = []
-            text_blocks = page.get_text("dict")["blocks"]
-            for b in text_blocks:
+            text_dict = page.get_text("dict")
+            for b in text_dict["blocks"]:
                 if b["type"] == 0:  # text
                     for line in b["lines"]:
-                        for span in line["spans"]:
-                            kind = "heading" if span["size"] > 14 else "paragraph"
-                            blocks.append(DocumentBlock(kind=kind, text=span["text"]))
+                        # Join spans without extra spaces to handle character-level fragmentation
+                        raw_text = "".join(s["text"] for s in line["spans"])
+                        # Normalize whitespace (convert multiple spaces/newlines to single space)
+                        clean_text = " ".join(raw_text.split()).strip()
+                        
+                        if not clean_text:
+                            continue
+                        
+                        max_size = max(s["size"] for s in line["spans"])
+                        kind = "heading" if max_size > 14 else "paragraph"
+                        blocks.append(DocumentBlock(kind=kind, text=clean_text))
             
             images = []
             image_list = page.get_images(full=True)
