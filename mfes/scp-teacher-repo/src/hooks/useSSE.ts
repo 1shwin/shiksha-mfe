@@ -171,6 +171,22 @@ export function useSSE(
     // Don't reconnect if manually closed
     if (closedManuallyRef.current) return;
 
+    const registerHandlers = (es: EventSource) => {
+      const currentHandlers = handlersRef.current;
+      for (const eventName of Object.keys(currentHandlers)) {
+        es.addEventListener(eventName, ((evt: MessageEvent) => {
+          resetHeartbeat();
+          try {
+            const parsed = JSON.parse(evt.data);
+            handlersRef.current[eventName]?.(parsed);
+          } catch {
+            // If data isn't JSON, pass the raw string
+            handlersRef.current[eventName]?.(evt.data);
+          }
+        }) as EventListener);
+      }
+    };
+
     const connect = () => {
       // Clean up any previous connection
       if (esRef.current) {
@@ -192,39 +208,32 @@ export function useSSE(
       };
 
       es.onerror = (evt) => {
-        setError(evt);
-        setReadyState(SSEReadyState.CLOSED);
-        onErrorRef.current?.(evt);
-
-        es.close();
-        esRef.current = null;
-
-        // Auto-reconnect with exponential backoff
-        if (!closedManuallyRef.current && retriesRef.current < maxRetries) {
-          const delay = retryBaseDelayMs * Math.pow(2, retriesRef.current);
-          retriesRef.current += 1;
-
-          retryTimerRef.current = setTimeout(() => {
-            if (!closedManuallyRef.current) {
-              connect();
-            }
-          }, delay);
-        }
+        handleConnectionError(evt);
       };
 
-      // Register named event handlers
-      const currentHandlers = handlersRef.current;
-      for (const eventName of Object.keys(currentHandlers)) {
-        es.addEventListener(eventName, ((evt: MessageEvent) => {
-          resetHeartbeat();
-          try {
-            const parsed = JSON.parse(evt.data);
-            handlersRef.current[eventName]?.(parsed);
-          } catch {
-            // If data isn't JSON, pass the raw string
-            handlersRef.current[eventName]?.(evt.data);
+      registerHandlers(es);
+    };
+
+    const handleConnectionError = (evt: Event) => {
+      setError(evt);
+      setReadyState(SSEReadyState.CLOSED);
+      onErrorRef.current?.(evt);
+
+      if (esRef.current) {
+        esRef.current.close();
+        esRef.current = null;
+      }
+
+      // Auto-reconnect with exponential backoff
+      if (!closedManuallyRef.current && retriesRef.current < maxRetries) {
+        const delay = retryBaseDelayMs * Math.pow(2, retriesRef.current);
+        retriesRef.current += 1;
+
+        retryTimerRef.current = setTimeout(() => {
+          if (!closedManuallyRef.current) {
+            connect();
           }
-        }) as EventListener);
+        }, delay);
       }
     };
 

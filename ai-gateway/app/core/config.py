@@ -15,5 +15,5 @@ class Settings(BaseSettings):
     mock_mode: bool = False
 
 settings = Settings()
-settings.artifact_root.mkdir(parents=True, exist_ok=True)
-settings.temp_root.mkdir(parents=True, exist_ok=True)
+settings.artifact_root.mkdir(parents=True, exist_ok=True, mode=0o755)
+settings.temp_root.mkdir(parents=True, exist_ok=True, mode=0o755)

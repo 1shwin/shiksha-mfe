@@ -6,10 +6,11 @@ from app.core.config import settings
 import time
 import uuid
 import shutil
+import anyio
 
 router = APIRouter()
 
-@router.post("/upload", response_model=IngestionResponse)
+@router.post("/upload", response_model=IngestionResponse, responses={400: {"description": "Unsupported file format"}})
 async def upload_document(file: UploadFile = File(...)):
     start_time = time.time()
     file_id = str(uuid.uuid4())
@@ -19,8 +20,12 @@ async def upload_document(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Only PDF and PPTX files are supported")
     
     temp_path = settings.temp_root / f"{file_id}.{ext}"
-    with open(temp_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    
+    def save_file():
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+    await anyio.to_thread.run_sync(save_file)
     
     pages = []
     slides = []

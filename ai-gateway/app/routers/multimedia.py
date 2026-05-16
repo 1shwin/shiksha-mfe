@@ -4,10 +4,11 @@ from app.models.schemas import MultimediaResponse
 from app.core.config import settings
 import uuid
 import shutil
+import anyio
 
 router = APIRouter()
 
-@router.post("/transcribe", response_model=MultimediaResponse)
+@router.post("/transcribe", response_model=MultimediaResponse, responses={400: {"description": "Unsupported media format"}})
 async def transcribe_media(
     file: UploadFile = File(...),
     language: str = Query(default='auto', pattern='^(auto|en|hi)$'),
@@ -21,8 +22,11 @@ async def transcribe_media(
     temp_path = settings.temp_root / f"{file_id}.{ext}"
     output_dir = settings.artifact_root / file_id
     
-    with open(temp_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    def save_file():
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+    await anyio.to_thread.run_sync(save_file)
         
     transcript, segments, txt_path, vtt_path = await transcribe(temp_path, output_dir, language)
     chapters = infer_chapters(segments)

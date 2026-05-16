@@ -55,6 +55,73 @@ const getStageIcon = (stage: PipelineStage) => {
   }
 };
 
+interface StageCardProps {
+  stage: PipelineStage;
+  state: any;
+  theme: any;
+}
+
+const StageCard: React.FC<StageCardProps> = ({ stage, state, theme }) => {
+  const labels = STAGE_LABELS[stage];
+  const isPending = state.status === StageStatus.PENDING;
+  const isInProgress = state.status === StageStatus.IN_PROGRESS;
+  const isCompleted = state.status === StageStatus.COMPLETED;
+  const isFailed = state.status === StageStatus.FAILED;
+
+  return (
+    <Card 
+      variant="outlined"
+      sx={{ 
+        p: 2, 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 2,
+        borderRadius: '12px',
+        borderColor: isInProgress ? theme.palette.primary.main : (isFailed ? theme.palette.error.main : 'inherit'),
+        bgcolor: isInProgress ? theme.palette.primary.light + '08' : 'inherit',
+        animation: isInProgress ? `${pulse} 2s infinite` : 'none',
+        transition: 'all 0.3s ease',
+        opacity: isPending ? 0.6 : 1
+      }}
+    >
+      <Box sx={{ 
+        p: 1.5, 
+        borderRadius: '8px', 
+        bgcolor: isCompleted ? theme.palette.success.light + '20' : (isInProgress ? theme.palette.primary.light + '20' : (isFailed ? theme.palette.error.light + '20' : theme.palette.grey[100])),
+        color: isCompleted ? theme.palette.success.main : (isInProgress ? theme.palette.primary.main : (isFailed ? theme.palette.error.main : theme.palette.grey[500])),
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        {getStageIcon(stage)}
+      </Box>
+
+      <Box sx={{ flex: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+          <Typography variant="h4" sx={{ m: 0, fontSize: '1rem', fontWeight: 600 }}>
+            {labels.label}
+          </Typography>
+          <Box>
+            {isCompleted && <CheckCircleIcon color="success" fontSize="small" />}
+            {isFailed && <ErrorIcon color="error" fontSize="small" />}
+            {isInProgress && <Typography variant="caption" sx={{ color: theme.palette.primary.main, fontWeight: 700 }}>{state.progress}%</Typography>}
+          </Box>
+        </Box>
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+          {state.message || labels.description}
+        </Typography>
+        {isInProgress && (
+          <LinearProgress 
+            variant="determinate" 
+            value={state.progress} 
+            sx={{ mt: 1, height: 4, borderRadius: 2 }}
+          />
+        )}
+      </Box>
+    </Card>
+  );
+};
+
 const PipelineProgress: React.FC = () => {
   const theme = useTheme<any>();
   const {
@@ -137,68 +204,14 @@ const PipelineProgress: React.FC = () => {
       )}
 
       <Stack spacing={2}>
-        {PIPELINE_STAGES_ORDERED.map((stage) => {
-          const state = pipelineStages[stage];
-          const labels = STAGE_LABELS[stage];
-          const isPending = state.status === StageStatus.PENDING;
-          const isInProgress = state.status === StageStatus.IN_PROGRESS;
-          const isCompleted = state.status === StageStatus.COMPLETED;
-          const isFailed = state.status === StageStatus.FAILED;
-
-          return (
-            <Card 
-              key={stage}
-              variant="outlined"
-              sx={{ 
-                p: 2, 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2,
-                borderRadius: '12px',
-                borderColor: isInProgress ? theme.palette.primary.main : (isFailed ? theme.palette.error.main : 'inherit'),
-                bgcolor: isInProgress ? theme.palette.primary.light + '08' : 'inherit',
-                animation: isInProgress ? `${pulse} 2s infinite` : 'none',
-                transition: 'all 0.3s ease',
-                opacity: isPending ? 0.6 : 1
-              }}
-            >
-              <Box sx={{ 
-                p: 1.5, 
-                borderRadius: '8px', 
-                bgcolor: isCompleted ? theme.palette.success.light + '20' : (isInProgress ? theme.palette.primary.light + '20' : (isFailed ? theme.palette.error.light + '20' : theme.palette.grey[100])),
-                color: isCompleted ? theme.palette.success.main : (isInProgress ? theme.palette.primary.main : (isFailed ? theme.palette.error.main : theme.palette.grey[500])),
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                {getStageIcon(stage)}
-              </Box>
-
-              <Box sx={{ flex: 1 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                  <Typography variant="h4" sx={{ m: 0, fontSize: '1rem', fontWeight: 600 }}>
-                    {labels.label}
-                  </Typography>
-                  <Box>
-                    {isCompleted && <CheckCircleIcon color="success" fontSize="small" />}
-                    {isFailed && <ErrorIcon color="error" fontSize="small" />}
-                    {isInProgress && <Typography variant="caption" sx={{ color: theme.palette.primary.main, fontWeight: 700 }}>{state.progress}%</Typography>}
-                  </Box>
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
-                  {state.message || labels.description}
-                </Typography>
-                {isInProgress && (
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={state.progress} 
-                    sx={{ mt: 1, height: 4, borderRadius: 2 }}
-                  />
-                )}
-              </Box>
-            </Card>
-          );
-        })}
+        {PIPELINE_STAGES_ORDERED.map((stage) => (
+          <StageCard 
+            key={stage} 
+            stage={stage} 
+            state={pipelineStages[stage]} 
+            theme={theme} 
+          />
+        ))}
       </Stack>
     </Box>
   );

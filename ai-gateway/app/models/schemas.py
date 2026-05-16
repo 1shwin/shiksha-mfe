@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Literal, Any
 from pydantic import BaseModel, Field
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 # --- Module A: Ingestion ---
 class GlossaryTerm(BaseModel):
@@ -134,7 +134,7 @@ class AssessmentResponse(BaseModel):
     type: Literal['quiz'] = 'quiz'
     questionType: str
     sourceFile: str = ''
-    generatedAt: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    generatedAt: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     questions: list[Any]  # Union of MCQ/FITB/Match serialized
 
 # --- Module D: Lessons ---
