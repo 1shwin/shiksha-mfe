@@ -15,7 +15,7 @@ describe('AssetUploadStep Component', () => {
   const mockSetSelectedFile = jest.fn();
   const mockToggleOutputType = jest.fn();
 
-  beforeEach(() => {
+  const setupMockStore = (overrides = {}) => {
     mockStore.mockReturnValue({
       selectedFile: null,
       setSelectedFile: mockSetSelectedFile,
@@ -24,26 +24,23 @@ describe('AssetUploadStep Component', () => {
       setStep: jest.fn(),
       selectedLanguage: 'auto',
       setLanguage: mockSetLanguage,
+      ...overrides
     } as any);
+  };
+
+  beforeEach(() => {
+    setupMockStore();
   });
 
-  it('renders language selector with 3 options when a video is selected', () => {
-    const videoFile = new File([''], 'video.mp4', { type: 'video/mp4' });
-    mockStore.mockReturnValue({
-      selectedFile: videoFile,
-      setSelectedFile: mockSetSelectedFile,
-      selectedOutputTypes: [],
-      toggleOutputType: mockToggleOutputType,
-      setStep: jest.fn(),
-      selectedLanguage: 'auto',
-      setLanguage: mockSetLanguage,
-    } as any);
+  const renderComponent = () => render(
+    <ThemeProvider theme={theme}>
+      <AssetUploadStep />
+    </ThemeProvider>
+  );
 
-    render(
-      <ThemeProvider theme={theme}>
-        <AssetUploadStep />
-      </ThemeProvider>
-    );
+  it('renders language selector with 3 options when a video is selected', () => {
+    setupMockStore({ selectedFile: new File([''], 'video.mp4', { type: 'video/mp4' }) });
+    renderComponent();
     
     expect(screen.getByText('Transcription Language')).toBeInTheDocument();
     expect(screen.getByText('Auto-detect')).toBeInTheDocument();
@@ -52,51 +49,23 @@ describe('AssetUploadStep Component', () => {
   });
 
   it('does not render language selector when no file is selected', () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <AssetUploadStep />
-      </ThemeProvider>
-    );
+    renderComponent();
     expect(screen.queryByText('Transcription Language')).not.toBeInTheDocument();
   });
 
   it('shows Hindi info chip when Hindi is selected', () => {
-    const videoFile = new File([''], 'video.mp4', { type: 'video/mp4' });
-    mockStore.mockReturnValue({
-      selectedFile: videoFile,
-      setSelectedFile: mockSetSelectedFile,
-      selectedOutputTypes: [],
-      toggleOutputType: mockToggleOutputType,
-      setStep: jest.fn(),
-      selectedLanguage: 'hi',
-      setLanguage: mockSetLanguage,
-    } as any);
-
-    render(
-      <ThemeProvider theme={theme}>
-        <AssetUploadStep />
-      </ThemeProvider>
-    );
+    setupMockStore({ 
+      selectedFile: new File([''], 'video.mp4', { type: 'video/mp4' }),
+      selectedLanguage: 'hi' 
+    });
+    renderComponent();
     expect(screen.getByText('Powered by Whisper-Hindi2Hinglish-Swift')).toBeInTheDocument();
   });
 
   it('calls setLanguage when a language is selected', () => {
-    const videoFile = new File([''], 'video.mp4', { type: 'video/mp4' });
-    mockStore.mockReturnValue({
-      selectedFile: videoFile,
-      setSelectedFile: mockSetSelectedFile,
-      selectedOutputTypes: [],
-      toggleOutputType: mockToggleOutputType,
-      setStep: jest.fn(),
-      selectedLanguage: 'auto',
-      setLanguage: mockSetLanguage,
-    } as any);
-
-    render(
-      <ThemeProvider theme={theme}>
-        <AssetUploadStep />
-      </ThemeProvider>
-    );
+    setupMockStore({ selectedFile: new File([''], 'video.mp4', { type: 'video/mp4' }) });
+    renderComponent();
+    
     const hindiButton = screen.getByText('Hindi (Hinglish output)');
     fireEvent.click(hindiButton);
     

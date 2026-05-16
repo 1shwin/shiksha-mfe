@@ -1,4 +1,5 @@
 import * as fflate from 'fflate';
+import { packageAndDownload } from './zipUtils';
 import { H5P_MANIFEST_TEMPLATE, QUESTION_SET_PARAMS_TEMPLATE } from './h5pTemplates';
 import { QuizOutput, MCQQuestion, FITBQuestion, MatchQuestion } from './AIContentTypes';
 
@@ -123,22 +124,8 @@ export const downloadH5P = async (generatedOutputs: Record<string, any>): Promis
     }
   };
 
-  return new Promise<ValidationResult>((resolve, reject) => {
-    fflate.zip(zipData, (err, data) => {
-      if (err) return reject(err);
-      
-      const blob = new Blob([data], { type: 'application/octet-stream' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'ai-lesson.h5p';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      resolve(validation);
-    });
-  });
+  await packageAndDownload(zipData, 'ai-lesson.h5p');
+  return validation;
 };
 
 

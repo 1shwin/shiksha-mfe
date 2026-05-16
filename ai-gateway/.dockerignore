@@ -12,3 +12,6 @@ Dockerfile
 storage/
 temp/
 tests/
+.env
+.python-version
+.pytest_cache/

@@ -7,9 +7,9 @@ APP_ROOT = Path(__file__).resolve().parent.parent.parent
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
     app_name: str = 'Shiksha AI Gateway'
-    ollama_api_url: str = 'http://ollama:11434'
+    ollama_api_url: str = 'https://ollama:11434'
     llm_model: str = 'mistral'          # Mistral only, no fallback
-    redis_url: str = 'redis://redis:6379/0'
+    redis_url: str = 'rediss://redis:6379/0'
     artifact_root: Path = APP_ROOT / 'storage' / 'artifacts'
     temp_root: Path = APP_ROOT / 'storage' / 'temp'
     whisper_model: str = 'large-v3'

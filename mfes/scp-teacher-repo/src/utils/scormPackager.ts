@@ -1,4 +1,5 @@
 import * as fflate from 'fflate';
+import { packageAndDownload } from './zipUtils';
 import { QuizOutput, MCQQuestion, FITBQuestion, MatchQuestion } from './AIContentTypes';
 
 /**
@@ -66,22 +67,7 @@ function finishSCORM(score, maxScore) {
     'index.html': fflate.strToU8(indexHtml)
   };
 
-  return new Promise<void>((resolve, reject) => {
-    fflate.zip(zipData, (err, data) => {
-      if (err) return reject(err);
-      
-      const blob = new Blob([data], { type: 'application/octet-stream' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'ai-assessment-scorm.zip';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      resolve();
-    });
-  });
+  return packageAndDownload(zipData, 'ai-assessment-scorm.zip');
 }
 
 function generateIndexHtml(generatedOutputs: Record<string, any>, title: string): string {

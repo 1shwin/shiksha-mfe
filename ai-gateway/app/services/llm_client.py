@@ -17,9 +17,15 @@ class LlmClient:
 
     def _repair_json(self, raw: str) -> dict:
         """Attempt to fix common LLM JSON issues."""
-        # Strip markdown fences
-        raw = re.sub(r'^```json\s*', '', raw.strip())
-        raw = re.sub(r'\s*```$', '', raw.strip())
+        # Strip markdown fences (safe string operations instead of regex)
+        raw = raw.strip()
+        if raw.startswith('```json'):
+            raw = raw[7:].lstrip()
+        elif raw.startswith('```'):
+            raw = raw[3:].lstrip()
+            
+        if raw.endswith('```'):
+            raw = raw[:-3].rstrip()
         # Try direct parse
         try:
             return json.loads(raw)
