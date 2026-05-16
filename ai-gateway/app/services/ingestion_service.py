@@ -5,17 +5,17 @@ from pathlib import Path
 
 class IngestionService:
     def parse_pdf(self, file_path: Path) -> list[ParsedPage]:
-        doc = fitz.open(file_path)
         pages = []
-        for i, page in enumerate(doc):
-            blocks = self._process_pdf_blocks(page)
-            images = self._process_pdf_images(page, i)
-            
-            pages.append(ParsedPage(
-                page_number=i + 1,
-                blocks=blocks,
-                images=images
-            ))
+        with fitz.open(file_path) as doc:
+            for i, page in enumerate(doc):
+                blocks = self._process_pdf_blocks(page)
+                images = self._process_pdf_images(page, i)
+                
+                pages.append(ParsedPage(
+                    page_number=i + 1,
+                    blocks=blocks,
+                    images=images
+                ))
         return pages
 
     def _process_pdf_blocks(self, page) -> list[DocumentBlock]:

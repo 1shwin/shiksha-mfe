@@ -2,11 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import ingestion, assessment, multimedia, lessons, pipeline
 
+from app.core.config import settings
+
 app = FastAPI(title='Shiksha AI Gateway', version='0.1.0')
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['http://localhost:3001', 'http://localhost:3000'],
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*'],

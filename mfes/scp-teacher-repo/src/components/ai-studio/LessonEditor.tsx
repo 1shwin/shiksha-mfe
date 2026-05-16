@@ -13,6 +13,15 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import useAIStudioStore from '../../store/aiStudioStore';
 import { LessonOutput, LessonSlide } from '../../utils/AIContentTypes';
 
+const escapeHtml = (unsafe: string) => {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
 const LessonEditor: React.FC = () => {
   const { generatedOutputs, updateOutput } = useAIStudioStore();
   const lesson = generatedOutputs['lesson'] as LessonOutput;
@@ -51,8 +60,8 @@ const LessonEditor: React.FC = () => {
   const generatePreviewHtml = () => {
     const slideHtml = lesson.slides.map(slide => `
       <section class="slide">
-        <h2>${slide.title}</h2>
-        <p>${slide.body}</p>
+        <h2>${escapeHtml(slide.title)}</h2>
+        <p>${escapeHtml(slide.body)}</p>
       </section>
     `).join('');
 

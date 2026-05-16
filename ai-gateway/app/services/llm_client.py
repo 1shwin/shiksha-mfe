@@ -2,6 +2,19 @@ import json, re, httpx
 from app.core.config import settings
 
 class LlmClient:
+    def __init__(self):
+        self._client = None
+
+    def _get_client(self) -> httpx.AsyncClient:
+        if self._client is None:
+            self._client = httpx.AsyncClient(timeout=120)
+        return self._client
+
+    async def close(self):
+        if self._client:
+            await self._client.aclose()
+            self._client = None
+
     def _repair_json(self, raw: str) -> dict:
         """Attempt to fix common LLM JSON issues."""
         # Strip markdown fences
@@ -143,14 +156,14 @@ class LlmClient:
         last_error = None
         for attempt in range(retries + 1):
             try:
-                async with httpx.AsyncClient(timeout=120) as client:
-                    resp = await client.post(
-                        f'{settings.ollama_api_url}/api/generate',
-                        json={'model': settings.llm_model, 'prompt': prompt,
-                              'format': 'json', 'stream': False},
-                    )
-                    resp.raise_for_status()
-                    return self._repair_json(resp.json()['response'])
+                client = self._get_client()
+                resp = await client.post(
+                    f'{settings.ollama_api_url}/api/generate',
+                    json={'model': settings.llm_model, 'prompt': prompt,
+                          'format': 'json', 'stream': False},
+                )
+                resp.raise_for_status()
+                return self._repair_json(resp.json()['response'])
             except Exception as exc:
                 last_error = exc
                 if attempt < retries:

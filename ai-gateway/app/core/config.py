@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     hindi_model: str = 'Oriserve/Whisper-Hindi2Hinglish-Swift'
     default_language: str = 'auto'
     mock_mode: bool = False
+    allowed_origins: list[str] = ['http://localhost:3000', 'http://localhost:3001']
 
 settings = Settings()
 settings.artifact_root.mkdir(parents=True, exist_ok=True, mode=0o755)
