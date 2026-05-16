@@ -1,9 +1,8 @@
 import React from 'react';
-import { Box, Card, CardContent, TextField, IconButton, Typography, Button, Stack, Chip } from '@mui/material';
+import { Box, Card, CardContent, TextField, IconButton, Button, Stack, Chip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import { useTheme } from '@mui/material/styles';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -93,9 +92,15 @@ const SortableTakeaway = ({ item, handleUpdate, handleDelete }: { item: KeyTakea
 };
 
 const KeyTakeawayEditor = () => {
-  const theme = useTheme<any>();
   const { generatedOutputs, updateOutput } = useAIStudioStore();
   const output = generatedOutputs['key_takeaways'] as KeyTakeawaysOutput;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   if (!output) return null;
 
@@ -112,7 +117,7 @@ const KeyTakeawayEditor = () => {
       title: 'New Takeaway',
       summary: 'Enter summary here...',
       pageRef: 'N/A',
-      confidence: 1.0,
+      confidence: 1,
     };
     updateOutput('key_takeaways', { ...output, takeaways: [...output.takeaways, newItem] });
   };
@@ -122,12 +127,6 @@ const KeyTakeawayEditor = () => {
     updateOutput('key_takeaways', { ...output, takeaways: newTakeaways });
   };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

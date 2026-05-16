@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Button, Stack } from '@mui/material';
+import { Box, Button, Stack } from '@mui/material';
 import { AIGatewayService } from '../../services/AIGatewayService';
 import AddIcon from '@mui/icons-material/Add';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -48,6 +48,13 @@ const QuizEditor = () => {
   const { generatedOutputs, updateOutput, sourceText } = useAIStudioStore();
   const output = generatedOutputs['quiz'] as QuizOutput;
   const [regeneratingIds, setRegeneratingIds] = useState<string[]>([]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   if (!output) return null;
 
@@ -107,12 +114,6 @@ const QuizEditor = () => {
     }
   };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

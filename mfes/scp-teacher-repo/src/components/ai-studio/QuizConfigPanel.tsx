@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Box, Button, Typography, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, Slider, ToggleButton, ToggleButtonGroup, Alert } from '@mui/material';
+import { Box, Button, Typography, Radio, RadioGroup, FormControlLabel, FormLabel, Slider, ToggleButton, ToggleButtonGroup, Alert } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import useAIStudioStore from '../../store/aiStudioStore';
 import { QuestionType, Difficulty } from '../../utils/AIContentTypes';
 import Loader from '../Loader';
 import { AIGatewayService } from '../../services/AIGatewayService';
+import { v4 as uuidv4 } from 'uuid';
 
 const QuizConfigPanel = () => {
   const theme = useTheme<any>();
@@ -29,7 +30,7 @@ const QuizConfigPanel = () => {
   };
 
   const handleDifficultyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuizConfig({ difficulty: (event.target as HTMLInputElement).value as Difficulty });
+    setQuizConfig({ difficulty: event.target.value as Difficulty });
   };
 
   const handleGenerate = async () => {
@@ -51,7 +52,7 @@ const QuizConfigPanel = () => {
           generatedAt: new Date().toISOString(),
           takeaways: ingestionResult.llm_analysis.takeaways.map((t: any) => ({
             ...t,
-            id: t.id || Math.random().toString(36).substr(2, 9)
+            id: t.id || uuidv4()
           }))
         };
       }
@@ -63,7 +64,7 @@ const QuizConfigPanel = () => {
           generatedAt: new Date().toISOString(),
           terms: ingestionResult.llm_analysis.glossary.map((t: any) => ({
             ...t,
-            id: t.id || Math.random().toString(36).substr(2, 9)
+            id: t.id || uuidv4()
           }))
         };
       }
@@ -75,50 +76,49 @@ const QuizConfigPanel = () => {
       startPipeline(jobId);
       
       // Step 3b: Asynchronously generate interactive content so it is ready by Review phase
-      const asyncGenerationTasks = [];
       const mockSourceText = "Mock source text for " + ingestionResult.filename;
       
       if (selectedOutputTypes.includes('quiz')) {
-        asyncGenerationTasks.push(
-          AIGatewayService.generateAssessment({
-            source_text: mockSourceText,
-            question_types: [quizConfig.questionType],
-            question_count: quizConfig.count,
-            difficulty: quizConfig.difficulty,
-            title: "Generated Assessment"
-          }).then(res => {
-            updateOutput('quiz', { ...res, sourceFile: ingestionResult.filename });
-          }).catch(err => console.error("Quiz generation failed:", err))
-        );
+        AIGatewayService.generateAssessment({
+          source_text: mockSourceText,
+          question_types: [quizConfig.questionType],
+          question_count: quizConfig.count,
+          difficulty: quizConfig.difficulty,
+          title: "Generated Assessment"
+        }).then(res => {
+          updateOutput('quiz', { 
+            ...res, 
+            sourceFile: ingestionResult.filename,
+            questionType: res.questionType as QuestionType 
+          });
+        }).catch(err => console.error("Quiz generation failed:", err));
       }
       
       if (selectedOutputTypes.includes('lesson')) {
-        asyncGenerationTasks.push(
-          AIGatewayService.generateMicroLesson({
-            title: "Generated Lesson",
-            source_text: mockSourceText,
+        AIGatewayService.generateMicroLesson({
+          title: "Generated Lesson",
+          source_text: mockSourceText,
+          branding: {
+            logo_url: "",
+            primary_color: "#123B5D",
+            secondary_color: "#F5A623",
+            font_family: "Inter, Arial, sans-serif"
+          }
+        }).then(res => {
+          updateOutput('lesson', { 
+            type: 'lesson', 
+            sourceFile: ingestionResult.filename,
+            generatedAt: new Date().toISOString(),
+            slides: res.slides,
+            htmlContent: res.html_content,
             branding: {
-              logo_url: "",
-              primary_color: "#123B5D",
-              secondary_color: "#F5A623",
-              font_family: "Inter, Arial, sans-serif"
+              logoUrl: "",
+              primaryColor: "#123B5D",
+              secondaryColor: "#F5A623",
+              fontFamily: "Inter, Arial, sans-serif"
             }
-          }).then(res => {
-            updateOutput('lesson', { 
-              type: 'lesson', 
-              sourceFile: ingestionResult.filename,
-              generatedAt: new Date().toISOString(),
-              slides: res.slides,
-              htmlContent: res.html_content,
-              branding: {
-                logoUrl: "",
-                primaryColor: "#123B5D",
-                secondaryColor: "#F5A623",
-                fontFamily: "Inter, Arial, sans-serif"
-              }
-            });
-          }).catch(err => console.error("Lesson generation failed:", err))
-        );
+          });
+        }).catch(err => console.error("Lesson generation failed:", err));
       }
       
       // We don't await the tasks here, they will complete in the background 
@@ -149,13 +149,7 @@ const QuizConfigPanel = () => {
         </Alert>
       )}
       
-      {!hasQuizSelected ? (
-        <Box sx={{ py: 4, textAlign: 'center' }}>
-          <Typography variant="body1" sx={{ mb: 4 }}>
-            You've selected non-interactive outputs. Click generate to begin extraction.
-          </Typography>
-        </Box>
-      ) : (
+      {hasQuizSelected ? (
         <Box sx={{ mt: 4 }}>
           <Box sx={{ mb: 6 }}>
             <FormLabel component="legend" sx={{ mb: 2, fontWeight: 600 }}>Question Format</FormLabel>
@@ -199,6 +193,12 @@ const QuizConfigPanel = () => {
               <FormControlLabel value="hard" control={<Radio />} label="Hard" />
             </RadioGroup>
           </Box>
+        </Box>
+      ) : (
+        <Box sx={{ py: 4, textAlign: 'center' }}>
+          <Typography variant="body1" sx={{ mb: 4 }}>
+            You've selected non-interactive outputs. Click generate to begin extraction.
+          </Typography>
         </Box>
       )}
 

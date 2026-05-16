@@ -26,13 +26,28 @@ class LlmClient:
         except json.JSONDecodeError:
             pass
         # Try extracting first {...} or [...]
-        match = re.search(r'(\{.*\}|\[.*\])', raw, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group(1))
-            except json.JSONDecodeError:
-                pass
+        start_curly = raw.find('{')
+        start_bracket = raw.find('[')
+        
+        # Determine the earliest starting position
+        start = -1
+        if start_curly != -1 and start_bracket != -1:
+            start = min(start_curly, start_bracket)
+        else:
+            start = max(start_curly, start_bracket)
+            
+        if start != -1:
+            end_curly = raw.rfind('}')
+            end_bracket = raw.rfind(']')
+            end = max(end_curly, end_bracket)
+            
+            if end != -1 and end > start:
+                try:
+                    return json.loads(raw[start:end+1])
+                except json.JSONDecodeError:
+                    pass
         raise ValueError(f'Could not parse LLM output as JSON: {raw[:200]}')
+    
 
     def _get_mock_response(self, prompt: str) -> dict:
         """Return static mock data based on the prompt content."""
