@@ -7,6 +7,7 @@ import { useTheme } from '@mui/material/styles';
 import useAIStudioStore from '../../store/aiStudioStore';
 import { GlossaryOutput, GlossaryTerm } from '../../utils/AIContentTypes';
 import { v4 as uuidv4 } from 'uuid';
+import LatexRenderer from './cards/LatexRenderer';
 
 const GlossaryEditor = () => {
   const theme = useTheme<any>();
@@ -83,7 +84,13 @@ const GlossaryEditor = () => {
                       startAdornment: <FunctionsIcon sx={{ mr: 1, color: 'text.disabled' }} />,
                       style: { fontFamily: 'monospace', fontSize: '0.9rem' }
                     }}
+                    sx={{ mb: 1 }}
                   />
+                  {item.latex && (
+                    <Box sx={{ mt: 1, p: 1, border: '1px dashed #ccc', borderRadius: '4px', minHeight: '30px' }}>
+                      <LatexRenderer latex={item.latex} inline />
+                    </Box>
+                  )}
                 </TableCell>
                 <TableCell align="right" sx={{ verticalAlign: 'top' }}>
                   <IconButton onClick={() => handleDelete(item.id)} color="error" size="small">

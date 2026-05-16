@@ -17,7 +17,9 @@ const QuizConfigPanel = () => {
     setStep, 
     selectedOutputTypes,
     selectedFile,
-    startPipeline
+    startPipeline,
+    setGeneratedOutputs,
+    updateOutput
   } = useAIStudioStore();
 
   const handleTypeChange = (event: React.MouseEvent<HTMLElement>, newType: QuestionType) => {
@@ -40,11 +42,89 @@ const QuizConfigPanel = () => {
       // Step 1: Upload the file to the gateway
       const ingestionResult = await AIGatewayService.uploadDocument(selectedFile);
       
-      // Step 2: Start a pipeline job
+      // Step 2: Extract initial analysis and store it
+      const initialOutputs: any = {};
+      if (ingestionResult.llm_analysis?.takeaways?.length > 0) {
+        initialOutputs['key_takeaways'] = {
+          type: 'key_takeaways',
+          sourceFile: ingestionResult.filename,
+          generatedAt: new Date().toISOString(),
+          takeaways: ingestionResult.llm_analysis.takeaways.map((t: any) => ({
+            ...t,
+            id: t.id || Math.random().toString(36).substr(2, 9)
+          }))
+        };
+      }
+      
+      if (ingestionResult.llm_analysis?.glossary?.length > 0) {
+        initialOutputs['glossary'] = {
+          type: 'glossary',
+          sourceFile: ingestionResult.filename,
+          generatedAt: new Date().toISOString(),
+          terms: ingestionResult.llm_analysis.glossary.map((t: any) => ({
+            ...t,
+            id: t.id || Math.random().toString(36).substr(2, 9)
+          }))
+        };
+      }
+      
+      setGeneratedOutputs(initialOutputs);
+      
+      // Step 3: Start a pipeline job for the assessment
       const jobId = ingestionResult.file_id;
       startPipeline(jobId);
       
-      // Step 3: Advance to the Processing step (index 2)
+      // Step 3b: Asynchronously generate interactive content so it is ready by Review phase
+      const asyncGenerationTasks = [];
+      const mockSourceText = "Mock source text for " + ingestionResult.filename;
+      
+      if (selectedOutputTypes.includes('quiz')) {
+        asyncGenerationTasks.push(
+          AIGatewayService.generateAssessment({
+            source_text: mockSourceText,
+            question_types: [quizConfig.questionType],
+            question_count: quizConfig.count,
+            difficulty: quizConfig.difficulty,
+            title: "Generated Assessment"
+          }).then(res => {
+            updateOutput('quiz', { ...res, sourceFile: ingestionResult.filename });
+          }).catch(err => console.error("Quiz generation failed:", err))
+        );
+      }
+      
+      if (selectedOutputTypes.includes('lesson')) {
+        asyncGenerationTasks.push(
+          AIGatewayService.generateMicroLesson({
+            title: "Generated Lesson",
+            source_text: mockSourceText,
+            branding: {
+              logo_url: "",
+              primary_color: "#123B5D",
+              secondary_color: "#F5A623",
+              font_family: "Inter, Arial, sans-serif"
+            }
+          }).then(res => {
+            updateOutput('lesson', { 
+              type: 'lesson', 
+              sourceFile: ingestionResult.filename,
+              generatedAt: new Date().toISOString(),
+              slides: res.slides,
+              htmlContent: res.html_content,
+              branding: {
+                logoUrl: "",
+                primaryColor: "#123B5D",
+                secondaryColor: "#F5A623",
+                fontFamily: "Inter, Arial, sans-serif"
+              }
+            });
+          }).catch(err => console.error("Lesson generation failed:", err))
+        );
+      }
+      
+      // We don't await the tasks here, they will complete in the background 
+      // while the pipeline animation plays
+      
+      // Step 4: Advance to the Processing step (index 2)
       setStep(2);
     } catch (err: any) {
       console.error('Pipeline start failed:', err);

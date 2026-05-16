@@ -5,9 +5,13 @@ import { QuizOutput, MCQQuestion, FITBQuestion, MatchQuestion } from './AIConten
 import { validateH5PQuestionSet, ValidationResult } from './h5pValidator';
 
 /**
- * Transforms our QuizOutput JSON into H5P content.json structure.
+ * Transforms our generated content into H5P content.json structure.
  */
-export const transformQuizToH5P = (quiz: QuizOutput) => {
+export const transformQuizToH5P = (generatedOutputs: Record<string, any>) => {
+  const quiz = generatedOutputs['quiz'] as QuizOutput;
+  const takeaways = (generatedOutputs['key_takeaways'] as any)?.takeaways || [];
+  const glossary = (generatedOutputs['glossary'] as any)?.terms || [];
+
   const h5pQuestions = quiz.questions.map((q) => {
     if (quiz.questionType === 'mcq') {
       const mcq = q as MCQQuestion;
@@ -68,8 +72,28 @@ export const transformQuizToH5P = (quiz: QuizOutput) => {
     return null;
   }).filter(Boolean);
 
+  // Build enhanced introduction with Takeaways
+  let introHtml = QUESTION_SET_PARAMS_TEMPLATE.introPage.introduction;
+  if (takeaways.length > 0) {
+    introHtml += `<h3>Key Takeaways</h3><ul>${takeaways.map((t: any) => `<li><strong>${t.title}</strong>: ${t.summary}</li>`).join('')}</ul>`;
+  }
+  
+  // Build enhanced results with Glossary
+  let endMessage = QUESTION_SET_PARAMS_TEMPLATE.endGame.noResultMessage;
+  if (glossary.length > 0) {
+    endMessage += `<h3>Glossary</h3><ul>${glossary.map((g: any) => `<li><strong>${g.term}</strong>: ${g.definition}</li>`).join('')}</ul>`;
+  }
+
   return {
     ...QUESTION_SET_PARAMS_TEMPLATE,
+    introPage: {
+      ...QUESTION_SET_PARAMS_TEMPLATE.introPage,
+      introduction: introHtml
+    },
+    endGame: {
+      ...QUESTION_SET_PARAMS_TEMPLATE.endGame,
+      noResultMessage: endMessage
+    },
     questions: h5pQuestions
   };
 };
@@ -81,7 +105,7 @@ export const downloadH5P = async (generatedOutputs: Record<string, any>): Promis
   const quiz = generatedOutputs['quiz'] as QuizOutput;
   if (!quiz) throw new Error("No quiz content to pack");
 
-  const contentJsonRaw = transformQuizToH5P(quiz);
+  const contentJsonRaw = transformQuizToH5P(generatedOutputs);
   
   // Validate BEFORE packaging
   const validation = validateH5PQuestionSet(contentJsonRaw);
@@ -116,4 +140,5 @@ export const downloadH5P = async (generatedOutputs: Record<string, any>): Promis
     });
   });
 };
+
 

@@ -205,7 +205,7 @@ const LessonEditor: React.FC = () => {
       <Dialog 
         open={previewOpen} 
         onClose={() => setPreviewOpen(false)}
-        maxWidth="lg"
+        maxWidth="xl"
         fullWidth
       >
         <DialogTitle>
@@ -214,7 +214,7 @@ const LessonEditor: React.FC = () => {
             <Button onClick={() => setPreviewOpen(false)}>Close</Button>
           </Box>
         </DialogTitle>
-        <DialogContent dividers sx={{ p: 0, height: '70vh' }}>
+        <DialogContent dividers sx={{ p: 0, height: '85vh' }}>
           <iframe
             title="Lesson Preview"
             srcDoc={generatePreviewHtml()}

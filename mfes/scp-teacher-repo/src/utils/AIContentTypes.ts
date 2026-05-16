@@ -114,6 +114,7 @@ export interface LessonOutput {
   slides: LessonSlide[];
   htmlContent: string;
   branding: {
+    logoUrl?: string;
     primaryColor: string;
     secondaryColor: string;
     fontFamily: string;

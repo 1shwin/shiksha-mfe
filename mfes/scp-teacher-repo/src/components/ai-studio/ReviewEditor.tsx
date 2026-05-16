@@ -84,7 +84,7 @@ const ReviewEditor = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setStep(3)}
+          onClick={() => setStep(4)}
           sx={{ px: 6, borderRadius: '100px' }}
         >
           Finalize & Export

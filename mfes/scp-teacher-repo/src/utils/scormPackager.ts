@@ -58,7 +58,7 @@ function finishSCORM(score, maxScore) {
   API.LMSFinish('');
 }`;
 
-  const indexHtml = generateIndexHtml(quiz, title);
+  const indexHtml = generateIndexHtml(generatedOutputs, title);
 
   const zipData: fflate.Zippable = {
     'imsmanifest.xml': fflate.strToU8(manifest),
@@ -84,7 +84,11 @@ function finishSCORM(score, maxScore) {
   });
 }
 
-function generateIndexHtml(quiz: QuizOutput, title: string): string {
+function generateIndexHtml(generatedOutputs: Record<string, any>, title: string): string {
+  const quiz = generatedOutputs['quiz'] as QuizOutput;
+  const takeaways = (generatedOutputs['key_takeaways'] as any)?.takeaways || [];
+  const glossary = (generatedOutputs['glossary'] as any)?.terms || [];
+  
   const quizData = JSON.stringify(quiz);
   
   return `<!DOCTYPE html>
@@ -98,35 +102,88 @@ function generateIndexHtml(quiz: QuizOutput, title: string): string {
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f5f7fa; color: #333; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h1 { color: #1a73e8; }
+        h1, h2 { color: #1a73e8; }
+        .section-title { border-bottom: 2px solid #1a73e8; padding-bottom: 10px; margin-top: 40px; }
         .question { font-weight: 600; font-size: 1.1em; margin-bottom: 15px; }
         .options { list-style: none; padding: 0; }
         .option { padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
         .option:hover { background-color: #f0f7ff; border-color: #1a73e8; }
         .option.selected { background-color: #1a73e8; color: white; border-color: #1a73e8; }
-        .btn { background-color: #1a73e8; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 1em; cursor: pointer; }
+        .btn { background-color: #1a73e8; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 1em; cursor: pointer; margin-top: 20px; }
         .btn:disabled { background-color: #ccc; }
         #results { display: none; text-align: center; }
         .blank-input { border: none; border-bottom: 2px solid #1a73e8; outline: none; padding: 2px 5px; font-size: inherit; width: 100px; text-align: center; }
+        .takeaway-item { margin-bottom: 20px; border-left: 4px solid #1a73e8; padding-left: 15px; }
+        .glossary-item { margin-bottom: 15px; }
+        .glossary-term { font-weight: bold; color: #1a73e8; }
     </style>
 </head>
 <body onload="initSCORM()">
-    <div id="quiz-container">
+    <div id="content-container">
         <h1>${title}</h1>
-        <div id="questions-list"></div>
-        <button id="submit-btn" class="btn" onclick="submitQuiz()">Submit Assessment</button>
-    </div>
-    <div id="results" class="card">
-        <h2>Assessment Complete</h2>
-        <p id="score-text"></p>
+
+        ${takeaways.length > 0 ? `
+        <div id="takeaways-section">
+            <h2 class="section-title">Key Takeaways</h2>
+            <div class="card">
+                ${takeaways.map((t: any) => `
+                    <div class="takeaway-item">
+                        <strong>${t.title}</strong>
+                        <p>${t.summary}</p>
+                    </div>
+                `).join('')}
+            </div>
+            <button class="btn" onclick="startQuiz()">Proceed to Assessment</button>
+        </div>
+        ` : ''}
+
+        <div id="quiz-section" style="${takeaways.length > 0 ? 'display:none' : ''}">
+            <h2 class="section-title">Assessment</h2>
+            <div id="questions-list"></div>
+            <button id="submit-btn" class="btn" onclick="submitQuiz()">Submit Assessment</button>
+        </div>
+
+        ${glossary.length > 0 ? `
+        <div id="glossary-section" style="display:none">
+            <h2 class="section-title">Glossary</h2>
+            <div class="card">
+                ${glossary.map((g: any) => `
+                    <div class="glossary-item">
+                        <span class="glossary-term">${g.term}:</span> ${g.definition}
+                    </div>
+                `).join('')}
+            </div>
+            <button class="btn" onclick="window.close()">Close Lesson</button>
+        </div>
+        ` : ''}
+
+        <div id="results" class="card">
+            <h2>Assessment Complete</h2>
+            <p id="score-text"></p>
+            ${glossary.length > 0 ? '<button class="btn" onclick="showGlossary()">View Glossary</button>' : ''}
+        </div>
     </div>
 
     <script>
         const quiz = ${quizData};
         const userAnswers = {};
 
+        function startQuiz() {
+            const takeaways = document.getElementById('takeaways-section');
+            if (takeaways) takeaways.style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'block';
+        }
+
+        function showGlossary() {
+            document.getElementById('results').style.display = 'none';
+            const glossary = document.getElementById('glossary-section');
+            if (glossary) glossary.style.display = 'block';
+        }
+
         function renderQuiz() {
             const list = document.getElementById('questions-list');
+            if (!quiz || !quiz.questions) return;
+            
             quiz.questions.forEach((q, idx) => {
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -205,7 +262,7 @@ function generateIndexHtml(quiz: QuizOutput, title: string): string {
                 }
             });
 
-            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'none';
             document.getElementById('results').style.display = 'block';
             document.getElementById('score-text').innerText = 'You scored ' + score + ' out of ' + maxScore;
             
@@ -217,3 +274,4 @@ function generateIndexHtml(quiz: QuizOutput, title: string): string {
 </body>
 </html>`;
 }
+

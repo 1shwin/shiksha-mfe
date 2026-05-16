@@ -72,7 +72,7 @@ const FITBQuestionCard: React.FC<FITBQuestionCardProps> = ({
                   fullWidth
                   label="Primary Answer"
                   value={blank.answer}
-                  disabled
+                  InputProps={{ readOnly: true }}
                 />
                 <TextField
                   fullWidth

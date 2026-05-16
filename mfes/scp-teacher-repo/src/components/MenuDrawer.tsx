@@ -1,3 +1,4 @@
+/// <reference path="../../types/global.d.ts" />
 'use client';
 
 import useStore from '@/store/store';
@@ -624,6 +625,43 @@ const MenuDrawer: React.FC<DrawerProps> = ({
                 }}
               >
                 {t('ASSESSMENTS.ASSESSMENTS')}
+              </Button>
+            </Box>
+          )}
+        {!isEliminatedFromBuild('Assessments', 'feature') &&
+          isActiveYear &&
+          !tenantName && (
+            <Box sx={{ marginTop: '18px' }}>
+              <Button
+                className="fs-14"
+                sx={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  background: router.pathname.includes('/ai-studio')
+                    ? theme.palette.primary.main
+                    : 'transparent',
+                  padding: router.pathname.includes('/ai-studio')
+                    ? '16px 18px !important'
+                    : '0px 18px !important',
+                  color: router.pathname.includes('/ai-studio') ? '#2E1500' : theme.palette.warning.A200,
+                  fontWeight: router.pathname.includes('/ai-studio') ? '600' : 500,
+                  '&:hover': {
+                    background: router.pathname.includes('/ai-studio')
+                      ? theme.palette.primary.main
+                      : 'transparent',
+                  },
+                  marginTop: '15px',
+                  gap: '10px',
+                }}
+                startIcon={
+                  <span className="material-icons" style={{ fontSize: '24px' }}>auto_awesome</span>
+                }
+                onClick={() => {
+                  router.push(`/ai-studio`);
+                }}
+              >
+                AI Micro-Learning Studio
               </Button>
             </Box>
           )}

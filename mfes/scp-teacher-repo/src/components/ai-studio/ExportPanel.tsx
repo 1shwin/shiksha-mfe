@@ -234,7 +234,7 @@ const ExportPanel = () => {
       )}
 
       <Box sx={{ mt: 8 }}>
-        <Button onClick={() => setStep(2)}>Back to Review</Button>
+        <Button onClick={() => setStep(3)}>Back to Review</Button>
       </Box>
     </Box>
   );
