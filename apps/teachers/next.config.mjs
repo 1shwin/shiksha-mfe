@@ -88,6 +88,18 @@ const nextConfig = {
         source: '/sunbird-plugins/renderer/:path*',
         destination: `${process.env.NEXT_PUBLIC_WORKSPACE_BASE_URL}/sunbird-plugins/renderer/:path*`,
       },
+      {
+        source: '/scp-teacher-repo/:path*',
+        destination: 'http://localhost:4102/scp-teacher-repo/:path*',
+      },
+      {
+        source: '/youthnet/:path*',
+        destination: 'http://localhost:4103/youthnet/:path*',
+      },
+      {
+        source: '/sbplayer/:path*',
+        destination: 'http://localhost:4107/sbplayer/:path*',
+      },
     ];
   },
 };
